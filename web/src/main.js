@@ -142,9 +142,12 @@ class PixelstarsCasino {
         });
         
         // Demo mode toggle
-        document.getElementById('demoToggle').addEventListener('click', () => {
-            this.toggleDemoMode();
-        });
+        const demoToggle = document.getElementById('demoToggle');
+        if (demoToggle) {
+            demoToggle.addEventListener('click', () => {
+                this.toggleDemoMode();
+            });
+        }
         
         // Close modal on backdrop click
         document.addEventListener('click', (e) => {
@@ -996,6 +999,12 @@ class PixelstarsCasino {
         const demoBtn = document.getElementById('demoToggle');
         const balanceMode = document.getElementById('balanceMode');
         const demoNotice = document.getElementById('demoNotice');
+        
+        // Проверяем что элементы существуют
+        if (!demoBtn || !balanceMode) {
+            console.log('Demo elements not found, skipping update');
+            return;
+        }
         
         if (this.demoMode) {
             demoBtn.classList.add('active');
