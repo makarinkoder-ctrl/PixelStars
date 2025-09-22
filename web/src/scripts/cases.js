@@ -104,31 +104,25 @@ class CasesManager {
         }
 
         casesGrid.innerHTML = cases.map(caseData => `
-            <div class="case-card ${caseData.rarity}" data-case-id="${caseData.id}">
+            <div class="case-card ${caseData.rarity}" data-case-id="${caseData.id}" onclick="window.casesManager.directOpenCase('${caseData.id}')">
                 <div class="case-image">${caseData.image || caseData.emoji}</div>
                 <div class="case-name">${caseData.name}</div>
                 <div class="case-price">${caseData.price} ⭐</div>
                 <div class="case-description">${caseData.description}</div>
+                <div class="case-open-btn">🎁 ОТКРЫТЬ</div>
             </div>
         `).join('');
-        
-        // Добавляем обработчики кликов после создания элементов
-        console.log('Adding event listeners for', cases.length, 'cases'); // Debug
-        cases.forEach(caseData => {
-            const caseCard = casesGrid.querySelector(`[data-case-id="${caseData.id}"]`);
-            if (caseCard) {
-                console.log('Adding click listener for case', caseData.id); // Debug
-                caseCard.addEventListener('click', () => {
-                    console.log('Case clicked:', caseData.id); // Debug
-                    this.showCasePreview(caseData);
-                });
-                
-                // Добавляем визуальную индикацию что можно кликать
-                caseCard.style.cursor = 'pointer';
-            } else {
-                console.error('Case card not found for id:', caseData.id);
-            }
-        });
+    }
+
+    // Прямое открытие кейса без превью для упрощения
+    async directOpenCase(caseId) {
+        console.log('Direct open case:', caseId);
+        try {
+            await this.openCase(caseId);
+        } catch (error) {
+            console.error('Error opening case directly:', error);
+            alert('Ошибка открытия кейса: ' + error.message);
+        }
     }
 
     async openCase(caseId) {
@@ -203,6 +197,16 @@ class CasesManager {
     startRouletteAnimation(winningPrize, allPrizes, newBalance) {
         const rouletteItems = document.getElementById('roulette-items');
         
+        // Упрощенная анимация для мобильных устройств
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // Простая анимация для мобильных
+            this.startSimpleRouletteAnimation(winningPrize, allPrizes, newBalance);
+            return;
+        }
+        
+        // Полная анимация для десктопа
         // Generate extended roulette with repeating items
         const rouletteData = this.generateRouletteItems(winningPrize, allPrizes);
         
@@ -273,6 +277,35 @@ class CasesManager {
         setTimeout(() => {
             this.showResult(winningPrize, newBalance);
         }, 5000); // 5 секунд на полную анимацию
+    }
+
+    // Упрощенная анимация для мобильных устройств
+    startSimpleRouletteAnimation(winningPrize, allPrizes, newBalance) {
+        const rouletteItems = document.getElementById('roulette-items');
+        
+        // Простой список призов без сложной анимации
+        const prizes = [winningPrize, ...allPrizes.slice(0, 9)];
+        
+        rouletteItems.innerHTML = prizes.map((item, index) => `
+            <div class="roulette-item ${item.rarity}" data-index="${index}">
+                <div class="roulette-emoji">${item.emoji}</div>
+                <div class="roulette-name">${item.name}</div>
+            </div>
+        `).join('');
+
+        // Простая анимация прокрутки
+        rouletteItems.style.transition = 'none';
+        rouletteItems.style.transform = 'translateX(200px)';
+        
+        setTimeout(() => {
+            rouletteItems.style.transition = 'transform 2s ease-out';
+            rouletteItems.style.transform = 'translateX(-100px)';
+        }, 100);
+
+        // Показываем результат быстрее на мобильных
+        setTimeout(() => {
+            this.showResult(winningPrize, newBalance);
+        }, 2500);
     }
 
     // Добавить указатель рулетки

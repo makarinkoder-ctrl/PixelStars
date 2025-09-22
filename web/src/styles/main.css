@@ -1608,3 +1608,72 @@ body {
         flex-direction: column;
     }
 }
+
+/* ===== МОБИЛЬНАЯ ОПТИМИЗАЦИЯ ===== */
+@media (max-width: 768px) {
+    /* Отключаем тяжелые анимации на мобильных */
+    *, *::before, *::after {
+        animation-duration: 0.3s !important;
+        transition-duration: 0.2s !important;
+    }
+    
+    /* Упрощаем эффекты для производительности */
+    .case-card::before,
+    .action-card::before,
+    .rarity-glow {
+        display: none !important;
+    }
+    
+    /* Убираем сложные тени */
+    .case-card,
+    .action-card,
+    .nav-item,
+    .open-case-btn {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Упрощаем hover эффекты */
+    .case-card:hover,
+    .action-card:hover,
+    .nav-item:hover {
+        transform: none !important;
+    }
+    
+    /* Оптимизируем рулетку для слабых устройств */
+    .roulette-item {
+        will-change: auto !important;
+        transform: none !important;
+    }
+    
+    /* Упрощаем градиенты */
+    .gradient-bg {
+        background: var(--tg-secondary-bg) !important;
+    }
+    
+    /* Увеличиваем размеры для удобства касаний */
+    .case-card {
+        min-height: 180px !important;
+        padding: 15px !important;
+    }
+    
+    .case-open-btn {
+        font-size: 1rem !important;
+        padding: 12px !important;
+        margin-top: 10px;
+        background: #28a745;
+        color: white;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    /* Упрощаем анимацию звезды */
+    .star-icon {
+        animation: none !important;
+    }
+    
+    /* Отключаем автоскрытие header на мобильных */
+    .header {
+        transform: translateY(0) !important;
+    }
+}
