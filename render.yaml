@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: pixelstars-casino
+    env: node
+    buildCommand: npm install
+    startCommand: node src/bot.js
+    envVars:
+      - key: NODE_ENV
+        value: production
