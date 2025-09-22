@@ -4,13 +4,22 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const Database = require('better-sqlite3');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+// Ensure database directory exists
+const dbPath = process.env.DB_PATH || './database/casino.db';
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+    console.log('📁 Created database directory:', dbDir);
+}
+
 // Database setup
-const db = new Database(process.env.DB_PATH || './database/casino.db');
+const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 
 // Create tables
