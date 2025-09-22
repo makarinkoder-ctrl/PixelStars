@@ -63,7 +63,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'web')));
+app.use(express.static(path.join(process.cwd(), 'web')));
 
 // Webhook endpoint
 if (process.env.NODE_ENV === 'production') {
@@ -343,7 +343,7 @@ app.post('/api/case/open', (req, res) => {
 
 // Serve main page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'web', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'web', 'index.html'));
 });
 
 // Error handling
