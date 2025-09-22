@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../dist')));
+app.use(express.static(path.join(__dirname, '../web')));
 
 // Простая команда start
 bot.start(async (ctx) => {
@@ -43,6 +43,7 @@ https://pixelstars1.onrender.com
 Просто скопируйте ссылку выше и откройте в браузере!`;
 
     const keyboard = Markup.inlineKeyboard([
+      [Markup.button.webApp('🎰 Играть в казино', 'https://pixelstars1.onrender.com')],
       [Markup.button.callback('ℹ️ Подробная информация', 'info')],
       [Markup.button.callback('📊 Статистика', 'stats')]
     ]);
@@ -447,7 +448,7 @@ app.post('/api/open-case', async (req, res) => {
 
 // Web App маршрут
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+  res.sendFile(path.join(__dirname, '../web/index.html'));
 });
 
 // Webhook для бота (если понадобится)
