@@ -2,13 +2,13 @@
   "name": "pixelstars-casino",
   "version": "1.0.0",
   "description": "Telegram Casino with Stars currency, cases and rocket game",
-  "main": "src/bot-production.js",
+  "main": "src/bot.js",
   "scripts": {
-    "start": "node src/bot-production.js",
+    "start": "node src/bot.js",
     "dev": "node src/bot-working.js",
     "build": "npm run build:web",
     "build:web": "echo 'Frontend is static'",
-    "serve": "node src/bot-production.js",
+    "serve": "node src/bot.js",
     "dev:web": "python3 -m http.server 3000 --directory web"
   },
   "keywords": ["telegram", "bot", "casino", "stars", "games"],
