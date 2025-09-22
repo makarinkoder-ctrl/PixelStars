@@ -6,6 +6,44 @@ class CasesManager {
         this.setupEventListeners();
     }
 
+    setupEventListeners() {
+        // Обработчики для модального окна превью
+        const previewModal = document.getElementById('case-preview-modal');
+        const closePreviewBtn = document.getElementById('close-preview-modal');
+        const cancelBtn = document.getElementById('cancel-case-preview');
+        const openFromPreviewBtn = document.getElementById('open-case-from-preview');
+
+        if (closePreviewBtn) {
+            closePreviewBtn.addEventListener('click', () => this.closePreviewModal());
+        }
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => this.closePreviewModal());
+        }
+
+        if (openFromPreviewBtn) {
+            openFromPreviewBtn.addEventListener('click', () => this.openCaseFromPreview());
+        }
+
+        // Закрытие по клику на фон
+        if (previewModal) {
+            previewModal.addEventListener('click', (e) => {
+                if (e.target === previewModal) {
+                    this.closePreviewModal();
+                }
+            });
+        }
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (previewModal && previewModal.style.display === 'flex') {
+                    this.closePreviewModal();
+                }
+            }
+        });
+    }
+
     async initializeCases() {
         try {
             // Load available cases
@@ -50,20 +88,16 @@ class CasesManager {
                 <div class="case-name">${caseData.name}</div>
                 <div class="case-price">${caseData.price} ⭐</div>
                 <div class="case-description">${caseData.description}</div>
-                
-                <!-- Превью подарков -->
-                <div class="case-preview">
-                    <div class="preview-title">Возможные подарки:</div>
-                    <div class="preview-items">
-                        ${this.generateCasePreview(caseData.id)}
-                    </div>
-                </div>
-                
-                <button class="case-btn" onclick="window.casesManager.openCase('${caseData.id}')">
-                    Открыть кейс
-                </button>
             </div>
         `).join('');
+        
+        // Добавляем обработчики кликов после создания элементов
+        cases.forEach(caseData => {
+            const caseCard = casesGrid.querySelector(`[data-case-id="${caseData.id}"]`);
+            if (caseCard) {
+                caseCard.addEventListener('click', () => this.showCasePreview(caseData));
+            }
+        });
     }
 
     async openCase(caseId) {
@@ -138,50 +172,112 @@ class CasesManager {
     startRouletteAnimation(winningPrize, allPrizes, newBalance) {
         const rouletteItems = document.getElementById('roulette-items');
         
-        // Generate random items for roulette (including the winning prize)
+        // Generate extended roulette with repeating items
         const rouletteData = this.generateRouletteItems(winningPrize, allPrizes);
         
-        // Render roulette items
-        rouletteItems.innerHTML = rouletteData.items.map(item => `
-            <div class="roulette-item ${item.rarity}">
+        // Render roulette items with more visual effects
+        rouletteItems.innerHTML = rouletteData.items.map((item, index) => `
+            <div class="roulette-item ${item.rarity}" data-index="${index}">
                 <div class="roulette-emoji">${item.emoji}</div>
                 <div class="roulette-name">${item.name}</div>
+                <div class="rarity-glow ${item.rarity}"></div>
             </div>
         `).join('');
 
-        // Правильная анимация как в TG
-        const itemWidth = 94; // 90px + 4px gap
+        // Улучшенная анимация как в Gifts Battle
+        const itemWidth = 96; // Увеличил для лучшего вида
         const winningIndex = rouletteData.winningIndex;
         
-        // Начальная позиция - показываем элементы слева
+        // Показываем указатель в центре
+        this.addRoulettePointer();
+        
+        // Начальная позиция - далеко слева
         rouletteItems.style.transition = 'none';
-        rouletteItems.style.transform = 'translateX(300px)';
+        rouletteItems.style.transform = 'translateX(400px)';
         
         // Принудительный reflow
         rouletteItems.offsetHeight;
         
-        // Финальная позиция - выигрышный элемент в центре контейнера
+        // Расчет финальной позиции для указателя
         const containerCenter = rouletteItems.parentElement.offsetWidth / 2;
         const winningElementCenter = winningIndex * itemWidth + itemWidth / 2;
         const finalPosition = containerCenter - winningElementCenter;
         
-        // Добавляем дополнительные прокрутки
+        // Добавляем несколько полных оборотов + случайность
+        const extraSpins = 4 + Math.floor(Math.random() * 3); // 4-6 полных оборотов
         const totalWidth = rouletteData.items.length * itemWidth;
-        const extraSpins = 3 + Math.floor(Math.random() * 2); // 3-4 полных оборота
-        const moveDistance = finalPosition - (extraSpins * totalWidth);
+        const randomOffset = (Math.random() - 0.5) * 20; // Небольшое случайное смещение
+        const moveDistance = finalPosition - (extraSpins * totalWidth) + randomOffset;
 
-        console.log(`🎰 Анимация: индекс ${winningIndex}, финал ${finalPosition}, движение ${moveDistance}`);
+        console.log(`🎰 Улучшенная анимация: индекс ${winningIndex}, дистанция ${moveDistance}`);
 
-        // Запускаем анимацию
+        // Звуковые эффекты (имитация)
+        this.playRouletteSound();
+
+        // Запускаем плавную анимацию с несколькими фазами
         setTimeout(() => {
-            rouletteItems.style.transition = 'transform 3.5s cubic-bezier(0.23, 1, 0.32, 1)';
-            rouletteItems.style.transform = `translateX(${moveDistance}px)`;
-        }, 200);
+            // Фаза 1: Быстрый старт
+            rouletteItems.style.transition = 'transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            rouletteItems.style.transform = `translateX(${moveDistance * 0.3}px)`;
+            
+            // Фаза 2: Средняя скорость
+            setTimeout(() => {
+                rouletteItems.style.transition = 'transform 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
+                rouletteItems.style.transform = `translateX(${moveDistance * 0.7}px)`;
+                
+                // Фаза 3: Медленное завершение
+                setTimeout(() => {
+                    rouletteItems.style.transition = 'transform 1.8s cubic-bezier(0.19, 1, 0.22, 1)';
+                    rouletteItems.style.transform = `translateX(${moveDistance}px)`;
+                }, 1500);
+            }, 1000);
+        }, 300);
 
-        // Show result after animation 
+        // Подсветка выигрышного элемента перед результатом
+        setTimeout(() => {
+            this.highlightWinningItem(winningIndex);
+        }, 4300);
+
+        // Show result after complete animation 
         setTimeout(() => {
             this.showResult(winningPrize, newBalance);
-        }, 4000); // 4 секунды на анимацию
+        }, 5000); // 5 секунд на полную анимацию
+    }
+
+    // Добавить указатель рулетки
+    addRoulettePointer() {
+        const rouletteContainer = document.querySelector('.roulette-container');
+        
+        // Удаляем старый указатель если есть
+        const existingPointer = rouletteContainer.querySelector('.roulette-pointer');
+        if (existingPointer) existingPointer.remove();
+        
+        // Создаем новый указатель
+        const pointer = document.createElement('div');
+        pointer.className = 'roulette-pointer';
+        pointer.innerHTML = '▼';
+        rouletteContainer.appendChild(pointer);
+    }
+
+    // Подсветка выигрышного элемента
+    highlightWinningItem(winningIndex) {
+        const items = document.querySelectorAll('.roulette-item');
+        const winningItem = items[winningIndex];
+        
+        if (winningItem) {
+            winningItem.classList.add('winning-item');
+            
+            // Эффект пульсации
+            setTimeout(() => {
+                winningItem.style.transform = 'scale(1.1)';
+                winningItem.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.8)';
+            }, 100);
+        }
+    }
+
+    // Звуковые эффекты (имитация через console)
+    playRouletteSound() {
+        console.log('🔊 Звук рулетки: tick-tick-tick...');
     }
 
     generateRouletteItems(winningPrize, allPrizes) {
@@ -275,6 +371,99 @@ class CasesManager {
     showError(message) {
         // You can implement a toast notification system here
         alert(message);
+    }
+
+    // Показать превью кейса
+    async showCasePreview(caseData) {
+        this.currentCaseData = caseData;
+        
+        const modal = document.getElementById('case-preview-modal');
+        const title = document.getElementById('case-preview-title');
+        const icon = document.getElementById('case-preview-icon');
+        const price = document.getElementById('case-preview-price');
+        const description = document.getElementById('case-preview-desc');
+        const prizesGrid = document.getElementById('prizes-preview-grid');
+
+        // Заполняем информацию о кейсе
+        title.textContent = caseData.name;
+        icon.textContent = caseData.image || caseData.emoji;
+        price.innerHTML = `${caseData.price} ⭐`;
+        description.textContent = caseData.description;
+
+        // Получаем список призов для этого кейса из API
+        try {
+            const response = await fetch('/api/cases');
+            const cases = await response.json();
+            const casePrizes = this.getPrizesForCase(caseData.id);
+            
+            // Заполняем сетку призов
+            prizesGrid.innerHTML = casePrizes.map(prize => `
+                <div class="prize-preview-item ${prize.rarity}">
+                    <span class="prize-emoji">${prize.emoji}</span>
+                    <div class="prize-name">${prize.name}</div>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            console.error('Error loading case prizes:', error);
+            prizesGrid.innerHTML = '<div class="error">Ошибка загрузки призов</div>';
+        }
+
+        // Показываем модал
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Закрыть превью модал
+    closePreviewModal() {
+        const modal = document.getElementById('case-preview-modal');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        this.currentCaseData = null;
+    }
+
+    // Открыть кейс из превью
+    openCaseFromPreview() {
+        if (this.currentCaseData) {
+            this.closePreviewModal();
+            this.openCase(this.currentCaseData.id);
+        }
+    }
+
+    // Получить призы для конкретного кейса
+    getPrizesForCase(caseId) {
+        // Возвращаем реальные Telegram подарки
+        const allPrizes = [
+            // Общие призы
+            { name: "50 звезд", emoji: "⭐", rarity: "common" },
+            { name: "100 звезд", emoji: "⭐", rarity: "common" },
+            { name: "Тюльпан", emoji: "🌷", rarity: "common" },
+            // Редкие призы
+            { name: "300 звезд", emoji: "💫", rarity: "rare" },
+            { name: "Торт", emoji: "🎂", rarity: "rare" },
+            { name: "Связка шаров", emoji: "🎈", rarity: "rare" },
+            // Эпические призы
+            { name: "1000 звезд", emoji: "🌟", rarity: "epic" },
+            { name: "Плюшевый мишка", emoji: "🧸", rarity: "epic" },
+            { name: "Букет роз", emoji: "🌹", rarity: "epic" },
+            // Легендарные призы
+            { name: "ДЖЕКПОТ 5000⭐", emoji: "🎰", rarity: "legendary" },
+            { name: "Изумруд", emoji: "💎", rarity: "legendary" }
+        ];
+
+        // В зависимости от кейса возвращаем разные наборы призов
+        switch(caseId) {
+            case 'basic':
+                return allPrizes.filter(p => ['common', 'rare'].includes(p.rarity));
+            case 'premium':
+                return allPrizes.filter(p => ['common', 'rare', 'epic'].includes(p.rarity));
+            case 'legendary':
+                return allPrizes;
+            case 'mega':
+                return allPrizes.filter(p => ['rare', 'epic', 'legendary'].includes(p.rarity));
+            default:
+                return allPrizes.slice(0, 8); // Показываем первые 8 призов
+        }
     }
 
     // Генерация превью подарков для кейса

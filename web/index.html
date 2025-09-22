@@ -215,6 +215,42 @@
         </main>
     </div>
 
+    <!-- Case Preview Modal -->
+    <div id="case-preview-modal" class="modal">
+        <div class="modal-content case-preview-content">
+            <div class="case-preview-header">
+                <h2 id="case-preview-title">Премиум кейс</h2>
+                <span class="close-modal" id="close-preview-modal">&times;</span>
+            </div>
+            
+            <div class="case-preview-info">
+                <div class="case-preview-image">
+                    <div class="case-icon" id="case-preview-icon">📦</div>
+                    <div class="case-price" id="case-preview-price">100 ⭐</div>
+                </div>
+                
+                <div class="case-preview-description">
+                    <p id="case-preview-desc">Откройте этот кейс и получите один из этих замечательных подарков!</p>
+                </div>
+            </div>
+
+            <div class="prizes-preview">
+                <h3>Возможные призы:</h3>
+                <div class="prizes-grid" id="prizes-preview-grid">
+                    <!-- Призы будут добавлены динамически -->
+                </div>
+            </div>
+
+            <div class="case-preview-actions">
+                <button class="open-case-btn" id="open-case-from-preview">
+                    <span class="btn-icon">🎰</span>
+                    Открыть кейс
+                </button>
+                <button class="cancel-btn" id="cancel-case-preview">Отмена</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Case Opening Modal -->
     <div id="case-modal" class="modal">
         <div class="modal-content case-modal-content">

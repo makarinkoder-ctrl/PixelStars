@@ -662,8 +662,13 @@ class PixelstarsCasino {
     async placeBet() {
         const betInput = document.getElementById('betInput');
         const autoWithdraw = document.getElementById('autoWithdraw');
+        const placeBetButton = document.getElementById('placeBetButton');
         const betAmount = parseInt(betInput.value);
         const autoWithdrawValue = autoWithdraw.value ? parseFloat(autoWithdraw.value) : null;
+        
+        // Мгновенная блокировка кнопки с индикатором
+        placeBetButton.disabled = true;
+        placeBetButton.innerHTML = '⏳ Размещение...';
         
         // Обновляем баланс из текущего режима
         const currentBalance = this.demoMode ? this.demoBalance : this.realBalance;
@@ -671,26 +676,34 @@ class PixelstarsCasino {
         // Проверяем фазу игры - ставки можно делать только в фазе waiting
         if (this.currentGamePhase !== 'waiting') {
             this.showNotification('❌ Ставки закрыты! Дождись следующего раунда.', 'error');
+            placeBetButton.disabled = false;
+            placeBetButton.innerHTML = '🚀 Сделать ставку';
             return;
         }
         
         if (betAmount < 50) {
             this.showNotification('❌ Минимальная ставка 50 звезд!', 'error');
+            placeBetButton.disabled = false;
+            placeBetButton.innerHTML = '🚀 Сделать ставку';
             return;
         }
         
         if (betAmount > currentBalance) {
             this.showNotification('❌ Недостаточно звезд!', 'error');
+            placeBetButton.disabled = false;
+            placeBetButton.innerHTML = '🚀 Сделать ставку';
             return;
         }
         
         if (autoWithdrawValue && (autoWithdrawValue < 1.01 || autoWithdrawValue > 100)) {
             this.showNotification('❌ Автовывод должен быть от x1.01 до x100!', 'error');
+            placeBetButton.disabled = false;
+            placeBetButton.innerHTML = '🚀 Сделать ставку';
             return;
         }
         
         try {
-            // Снимаем деньги с правильного баланса
+            // Мгновенно снимаем деньги с правильного баланса и обновляем UI
             if (this.demoMode) {
                 this.demoBalance -= betAmount;
                 this.balance = this.demoBalance;
@@ -706,6 +719,9 @@ class PixelstarsCasino {
                 autoWithdraw: autoWithdrawValue,
                 placed: true
             };
+
+            // Мгновенное уведомление об успехе
+            this.showNotification(`✅ Ставка ${betAmount} звезд размещена!`, 'success');
             
             // Переключаем интерфейс
             document.getElementById('rocketBetting').style.display = 'none';
@@ -721,6 +737,9 @@ class PixelstarsCasino {
             this.showNotification(`✅ Ставка ${betAmount} звезд размещена!`, 'success');
             
         } catch (error) {
+            // Восстанавливаем кнопку при ошибке
+            placeBetButton.disabled = false;
+            placeBetButton.innerHTML = '🚀 Сделать ставку';
             this.showNotification('❌ Ошибка размещения ставки!', 'error');
         }
     }
