@@ -18,7 +18,7 @@ class CasesManager {
 
     async loadCases() {
         try {
-            const response = await fetch('http://localhost:3000/api/cases');
+            const response = await fetch('/api/cases');
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -82,7 +82,7 @@ class CasesManager {
             this.showOpeningModal(caseId);
 
             // Request case opening
-            const response = await fetch('http://localhost:3000/api/open-case', {
+            const response = await fetch('/api/open-case', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -137,6 +137,14 @@ body {
     top: 0;
     z-index: 100;
     backdrop-filter: blur(10px);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.header.hidden {
+    transform: translateY(-100%);
+    opacity: 0;
 }
 
 .header-content {

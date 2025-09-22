@@ -144,6 +144,40 @@ class PixelstarsCasino {
                 this.closeModal();
             }
         });
+
+        // Скрывающаяся шапка при прокрутке
+        let lastScrollY = window.scrollY;
+        let ticking = false;
+
+        const updateHeader = () => {
+            const header = document.querySelector('.header');
+            const scrollY = window.scrollY;
+
+            if (Math.abs(scrollY - lastScrollY) < 5) {
+                ticking = false;
+                return;
+            }
+
+            if (scrollY > lastScrollY && scrollY > 100) {
+                // Прокрутка вниз - скрываем хедер
+                header.classList.add('hidden');
+            } else {
+                // Прокрутка вверх - показываем хедер
+                header.classList.remove('hidden');
+            }
+
+            lastScrollY = scrollY;
+            ticking = false;
+        };
+
+        const requestTick = () => {
+            if (!ticking) {
+                requestAnimationFrame(updateHeader);
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', requestTick, { passive: true });
     }
 
     switchTab(tabName) {
