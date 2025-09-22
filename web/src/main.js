@@ -5,6 +5,9 @@ class PixelstarsCasino {
         this.balance = 0;
         this.currentTab = 'home';
         this.telegramUser = null;
+        this.demoMode = true; // Начинаем с демо-режима
+        this.demoBalance = 10000; // Стартовый демо-баланс
+        this.realBalance = 0;
         
         this.init();
     }
@@ -109,8 +112,8 @@ class PixelstarsCasino {
     }
 
     updateUI() {
-        // Update balance display
-        document.getElementById('balanceAmount').textContent = this.balance.toLocaleString();
+        // Update balance display with demo mode
+        this.updateBalanceDisplay();
         
         // Update profile
         if (this.user) {
@@ -136,6 +139,11 @@ class PixelstarsCasino {
                 const tab = item.dataset.tab;
                 this.switchTab(tab);
             });
+        });
+        
+        // Demo mode toggle
+        document.getElementById('demoToggle').addEventListener('click', () => {
+            this.toggleDemoMode();
         });
         
         // Close modal on backdrop click
@@ -969,6 +977,51 @@ class PixelstarsCasino {
                 }
             }, 300);
         }, 3000);
+    }
+
+    // Demo Mode Management
+    toggleDemoMode() {
+        this.demoMode = !this.demoMode;
+        this.updateDemoDisplay();
+        this.updateBalanceDisplay();
+        
+        const message = this.demoMode 
+            ? '🎮 Включен ДЕМО-режим! Играйте без риска!'
+            : '💰 Включен РЕАЛЬНЫЙ режим! Осторожно со ставками!';
+        
+        this.showNotification(message, this.demoMode ? 'info' : 'warning');
+    }
+
+    updateDemoDisplay() {
+        const demoBtn = document.getElementById('demoToggle');
+        const balanceMode = document.getElementById('balanceMode');
+        const demoNotice = document.getElementById('demoNotice');
+        
+        if (this.demoMode) {
+            demoBtn.classList.add('active');
+            demoBtn.classList.remove('real');
+            demoBtn.innerHTML = '<span class="demo-icon">🎮</span><span class="demo-text">ДЕМО</span>';
+            balanceMode.textContent = 'демо';
+            if (demoNotice) demoNotice.classList.remove('hidden');
+            this.balance = this.demoBalance;
+        } else {
+            demoBtn.classList.remove('active');
+            demoBtn.classList.add('real');
+            demoBtn.innerHTML = '<span class="demo-icon">💰</span><span class="demo-text">РЕАЛ</span>';
+            balanceMode.textContent = 'реал';
+            if (demoNotice) demoNotice.classList.add('hidden');
+            this.balance = this.realBalance;
+        }
+    }
+
+    updateBalanceDisplay() {
+        const balanceElement = document.getElementById('balanceAmount');
+        if (balanceElement) {
+            balanceElement.textContent = this.balance.toLocaleString();
+        }
+        
+        // Обновляем демо-дисплей
+        this.updateDemoDisplay();
     }
 }
 
