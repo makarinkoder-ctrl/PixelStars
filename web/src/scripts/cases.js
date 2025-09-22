@@ -438,9 +438,14 @@ class CasesManager {
 
     // Открыть кейс из превью
     openCaseFromPreview() {
+        console.log('openCaseFromPreview called, currentCaseData:', this.currentCaseData); // Debug
         if (this.currentCaseData) {
+            console.log('Closing preview and opening case:', this.currentCaseData.id); // Debug
             this.closePreviewModal();
             this.openCase(this.currentCaseData.id);
+        } else {
+            console.error('No currentCaseData set!'); // Debug
+            alert('Ошибка: данные кейса не найдены');
         }
     }
 

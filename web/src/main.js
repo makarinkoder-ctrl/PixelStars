@@ -29,6 +29,9 @@ class PixelstarsCasino {
             // Load initial content
             await this.loadContent();
             
+            // Обновляем отображение режима после инициализации
+            this.updateDemoDisplay();
+            
             // Hide loading screen
             this.hideLoading();
         } catch (error) {

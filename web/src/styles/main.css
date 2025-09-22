@@ -1550,23 +1550,26 @@ body {
 }
 
 .open-case-btn {
-    background: linear-gradient(135deg, var(--tg-accent), #4a9eff);
+    background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
     border: none;
-    padding: 12px 25px;
+    padding: 15px 30px;
     border-radius: 25px;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    min-width: 180px;
 }
 
 .open-case-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(74, 158, 255, 0.4);
+    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+    background: linear-gradient(135deg, #20c997, #28a745);
 }
 
 .cancel-btn {
