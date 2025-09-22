@@ -665,6 +665,9 @@ class PixelstarsCasino {
         const betAmount = parseInt(betInput.value);
         const autoWithdrawValue = autoWithdraw.value ? parseFloat(autoWithdraw.value) : null;
         
+        // Обновляем баланс из текущего режима
+        const currentBalance = this.demoMode ? this.demoBalance : this.realBalance;
+        
         // Проверяем фазу игры - ставки можно делать только в фазе waiting
         if (this.currentGamePhase !== 'waiting') {
             this.showNotification('❌ Ставки закрыты! Дождись следующего раунда.', 'error');
@@ -676,7 +679,7 @@ class PixelstarsCasino {
             return;
         }
         
-        if (betAmount > this.balance) {
+        if (betAmount > currentBalance) {
             this.showNotification('❌ Недостаточно звезд!', 'error');
             return;
         }
@@ -687,8 +690,14 @@ class PixelstarsCasino {
         }
         
         try {
-            // Снимаем деньги с баланса сразу
-            this.balance -= betAmount;
+            // Снимаем деньги с правильного баланса
+            if (this.demoMode) {
+                this.demoBalance -= betAmount;
+                this.balance = this.demoBalance;
+            } else {
+                this.realBalance -= betAmount;
+                this.balance = this.realBalance;
+            }
             this.updateUI();
             
             // Сохраняем данные ставки

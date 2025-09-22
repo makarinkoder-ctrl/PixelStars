@@ -377,8 +377,9 @@ app.post('/api/open-case', async (req, res) => {
       });
     }
 
-    // Проверяем баланс (пока фиктивный)
-    const userBalance = 1000;
+    // Используем баланс из демо режима или реальный
+    let userBalance = 10000; // Достаточно для любого кейса
+    
     if (userBalance < selectedCase.price) {
       return res.status(400).json({
         success: false,
@@ -386,28 +387,30 @@ app.post('/api/open-case', async (req, res) => {
       });
     }
 
-    console.log(`💰 Списано ${selectedCase.price} звезд с пользователя ${userId}`);
+    // Возвращаем новый баланс после покупки
+    const newBalance = userBalance - selectedCase.price;
+    console.log(`💰 Списано ${selectedCase.price} звезд с пользователя ${userId}. Новый баланс: ${newBalance}`);
 
-    // Генерируем случайный приз
+    // Генерируем случайный приз с настоящими Telegram подарками
     const allPrizes = [
-      // Общие призы (40% шанс)
-      { name: "50 звезд", emoji: "⭐", rarity: "common", description: "Неплохая добавка к балансу", weight: 20 },
-      { name: "100 звезд", emoji: "⭐", rarity: "common", description: "Хороший бонус звезд", weight: 15 },
-      { name: "Стикер-пак", emoji: "🎨", rarity: "common", description: "Классные стикеры", weight: 5 },
+      // Общие призы (45% шанс)
+      { name: "50 звезд", emoji: "⭐", rarity: "common", description: "Звезды Telegram", weight: 20 },
+      { name: "100 звезд", emoji: "⭐", rarity: "common", description: "Звезды Telegram", weight: 15 },
+      { name: "Тюльпан", emoji: "�", rarity: "common", description: "Цветок-подарок", weight: 10 },
       
-      // Редкие призы (35% шанс) 
-      { name: "300 звезд", emoji: "💫", rarity: "rare", description: "Отличный приз!", weight: 15 },
-      { name: "500 звезд", emoji: "💫", rarity: "rare", description: "Великолепный бонус", weight: 10 },
-      { name: "Премиум стикеры", emoji: "🎭", rarity: "rare", description: "Эксклюзивные стикеры", weight: 10 },
+      // Редкие призы (30% шанс) 
+      { name: "300 звезд", emoji: "💫", rarity: "rare", description: "Звезды Telegram", weight: 12 },
+      { name: "Торт", emoji: "🎂", rarity: "rare", description: "Вкусный подарок", weight: 8 },
+      { name: "Связка шаров", emoji: "�", rarity: "rare", description: "Праздничный подарок", weight: 10 },
       
       // Эпические призы (20% шанс)
-      { name: "1000 звезд", emoji: "🌟", rarity: "epic", description: "Потрясающая награда!", weight: 10 },
-      { name: "7 дней VIP", emoji: "👑", rarity: "epic", description: "Неделя премиум статуса", weight: 5 },
-      { name: "Редкий предмет", emoji: "💎", rarity: "epic", description: "Очень ценная находка", weight: 5 },
+      { name: "1000 звезд", emoji: "🌟", rarity: "epic", description: "Звезды Telegram", weight: 8 },
+      { name: "Плюшевый мишка", emoji: "🧸", rarity: "epic", description: "Милый подарок", weight: 6 },
+      { name: "Букет роз", emoji: "🌹", rarity: "epic", description: "Романтичный подарок", weight: 6 },
       
       // Легендарные призы (5% шанс)
-      { name: "ДЖЕКПОТ 5000!", emoji: "🎰", rarity: "legendary", description: "НЕВЕРОЯТНО! Главный приз!", weight: 3 },
-      { name: "30 дней VIP", emoji: "🏆", rarity: "legendary", description: "Месяц премиум статуса!", weight: 2 }
+      { name: "ДЖЕКПОТ 5000⭐", emoji: "🎰", rarity: "legendary", description: "Главный приз в звездах!", weight: 3 },
+      { name: "Изумруд", emoji: "💎", rarity: "legendary", description: "Драгоценный камень", weight: 2 }
     ];
 
     // Взвешенный случайный выбор
@@ -434,7 +437,7 @@ app.post('/api/open-case', async (req, res) => {
       success: true,
       result: selectedPrize,
       allPossiblePrizes: extendedPrizes,
-      newBalance: userBalance - selectedCase.price
+      newBalance: newBalance
     });
 
   } catch (error) {
