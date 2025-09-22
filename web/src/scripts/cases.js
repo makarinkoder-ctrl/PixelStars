@@ -1,28 +1,45 @@
 // Cases functionality
 class CasesManager {
     constructor() {
+        console.log('🎁 CasesManager: Инициализация начата');
         this.loadCases();
         this.updateInventoryDisplay(); // Загружаем инвентарь при старте
         this.setupEventListeners();
+        console.log('🎁 CasesManager: Инициализация завершена');
     }
 
     setupEventListeners() {
+        console.log('🎁 CasesManager: Настройка обработчиков событий');
         // Обработчики для модального окна превью
         const previewModal = document.getElementById('case-preview-modal');
         const closePreviewBtn = document.getElementById('close-preview-modal');
         const cancelBtn = document.getElementById('cancel-case-preview');
         const openFromPreviewBtn = document.getElementById('open-case-from-preview');
 
+        console.log('🎁 Элементы модала:', {
+            previewModal: !!previewModal,
+            closePreviewBtn: !!closePreviewBtn,
+            cancelBtn: !!cancelBtn,
+            openFromPreviewBtn: !!openFromPreviewBtn
+        });
+
         if (closePreviewBtn) {
             closePreviewBtn.addEventListener('click', () => this.closePreviewModal());
+        } else {
+            console.warn('🎁 Кнопка закрытия превью не найдена!');
         }
 
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => this.closePreviewModal());
+        } else {
+            console.warn('🎁 Кнопка отмены не найдена!');
         }
 
         if (openFromPreviewBtn) {
             openFromPreviewBtn.addEventListener('click', () => this.openCaseFromPreview());
+            console.log('🎁 Обработчик клика добавлен к кнопке открытия кейса');
+        } else {
+            console.error('🎁 КНОПКА ОТКРЫТИЯ КЕЙСА НЕ НАЙДЕНА!');
         }
 
         // Закрытие по клику на фон

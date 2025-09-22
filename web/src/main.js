@@ -76,7 +76,7 @@ class PixelstarsCasino {
                 const response = await fetch(`/api/user/${this.telegramUser.id}`);
                 if (response.ok) {
                     this.user = await response.json();
-                    this.balance = this.user.stars_balance;
+                    this.realBalance = this.user.stars_balance; // Устанавливаем реальный баланс
                 } else {
                     // Create default user data for demo
                     this.user = {
@@ -90,13 +90,13 @@ class PixelstarsCasino {
                         games_played: 0,
                         cases_opened: 0
                     };
-                    this.balance = 1000;
+                    this.realBalance = 1000; // Устанавливаем реальный баланс
                 }
             } else {
-                // Demo data for development
+                // Режим разработки без Telegram
                 this.user = {
-                    telegram_id: 'demo',
-                    first_name: 'Demo User',
+                    telegram_id: 123456,
+                    first_name: 'Test User',
                     stars_balance: 1000,
                     level: 1,
                     experience: 0,
@@ -105,12 +105,16 @@ class PixelstarsCasino {
                     games_played: 0,
                     cases_opened: 0
                 };
-                this.balance = 1000;
+                this.realBalance = 1000; // Устанавливаем реальный баланс
             }
             
-            this.updateUI();
+            // Устанавливаем текущий баланс в зависимости от режима
+            this.balance = this.demoMode ? this.demoBalance : this.realBalance;
         } catch (error) {
             console.error('Error loading user data:', error);
+            // Fallback значения
+            this.realBalance = 1000;
+            this.balance = this.demoMode ? this.demoBalance : this.realBalance;
         }
     }
 
@@ -1023,17 +1027,25 @@ class PixelstarsCasino {
     }
 
     updateDemoDisplay() {
+        console.log('💰 updateDemoDisplay вызван, demoMode:', this.demoMode);
         const demoBtn = document.getElementById('demoToggle');
         const balanceMode = document.getElementById('balanceMode');
         const demoNotice = document.getElementById('demoNotice');
         
+        console.log('💰 Элементы UI:', {
+            demoBtn: !!demoBtn,
+            balanceMode: !!balanceMode,
+            demoNotice: !!demoNotice
+        });
+        
         // Проверяем что элементы существуют
         if (!demoBtn || !balanceMode) {
-            console.log('Demo elements not found, skipping update');
+            console.log('💰 Demo elements not found, skipping update');
             return;
         }
         
         if (this.demoMode) {
+            console.log('💰 Включаем ДЕМО режим в UI');
             demoBtn.classList.add('active');
             demoBtn.classList.remove('real');
             demoBtn.innerHTML = '<span class="demo-icon">🎮</span><span class="demo-text">ДЕМО</span>';
@@ -1041,6 +1053,7 @@ class PixelstarsCasino {
             if (demoNotice) demoNotice.classList.remove('hidden');
             this.balance = this.demoBalance;
         } else {
+            console.log('💰 Включаем РЕАЛЬНЫЙ режим в UI');
             demoBtn.classList.remove('active');
             demoBtn.classList.add('real');
             demoBtn.innerHTML = '<span class="demo-icon">💰</span><span class="demo-text">РЕАЛ</span>';
