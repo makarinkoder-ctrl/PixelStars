@@ -2,7 +2,7 @@
   "name": "pixelstars-casino",
   "version": "1.0.0",
   "description": "Telegram Casino with Stars currency, cases and rocket game",
-  "main": "src/bot.js",
+  "main": "src/bot-working.js",
   "type": "module",
   "scripts": {
     "start": "node src/bot-working.js",
