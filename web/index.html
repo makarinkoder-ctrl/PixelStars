@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixelstars Casino ⭐</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div id="loading" class="loading-screen">
+            <div class="loading-content">
+                <div class="loading-star">⭐</div>
+                <h1>Pixelstars Casino</h1>
+                <div class="loading-text">Загружаем твоё казино...</div>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">⭐</span>
+                    <span class="logo-text">Pixelstars</span>
+                </div>
+                <div class="balance-display">
+                    <div class="balance-amount" id="balanceAmount">0</div>
+                    <div class="balance-label">звезд</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Navigation -->
+        <nav class="main-nav">
+            <button class="nav-item active" data-tab="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Главная</span>
+            </button>
+            <button class="nav-item" data-tab="cases">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-label">Кейсы</span>
+            </button>
+            <button class="nav-item" data-tab="rocket">
+                <span class="nav-icon">🚀</span>
+                <span class="nav-label">Ракетка</span>
+            </button>
+            <button class="nav-item" data-tab="profile">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Профиль</span>
+            </button>
+        </nav>
+
+        <!-- Content Sections -->
+        <main class="content">
+            <!-- Home Tab -->
+            <section id="home" class="tab-content active">
+                <div class="welcome-section">
+                    <div class="welcome-card">
+                        <h2>Добро пожаловать в Pixelstars! 🎰</h2>
+                        <p>Твоё казино с честными играми и крутыми наградами</p>
+                        <div class="welcome-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalPlayers">1,234</div>
+                                <div class="stat-label">Игроков</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalPayout">15.2M</div>
+                                <div class="stat-label">Выплачено</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="todayGames">892</div>
+                                <div class="stat-label">Игр сегодня</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3>Быстрые действия</h3>
+                    <div class="action-grid">
+                        <button class="action-card" onclick="switchTab('cases')">
+                            <div class="action-icon">🎁</div>
+                            <div class="action-title">Открыть кейс</div>
+                            <div class="action-desc">Получи крутые награды</div>
+                        </button>
+                        <button class="action-card" onclick="switchTab('rocket')">
+                            <div class="action-icon">🚀</div>
+                            <div class="action-title">Играть в Ракетку</div>
+                            <div class="action-desc">Умножай свои звезды</div>
+                        </button>
+                        <button class="action-card" onclick="showDailyBonus()">
+                            <div class="action-icon">🎊</div>
+                            <div class="action-title">Ежедневный бонус</div>
+                            <div class="action-desc">Бесплатные звезды</div>
+                        </button>
+                        <button class="action-card" onclick="showLeaderboard()">
+                            <div class="action-icon">🏆</div>
+                            <div class="action-title">Рейтинг</div>
+                            <div class="action-desc">Топ игроков</div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cases Tab -->
+            <section id="cases" class="tab-content">
+                <div class="section-header">
+                    <h2>🎁 Кейсы с подарками</h2>
+                    <p>Открывай кейсы и получай эксклюзивные награды!</p>
+                </div>
+                
+                <div class="cases-grid" id="cases-grid">
+                    <!-- Кейсы будут загружены динамически -->
+                </div>
+            </section>
+
+            <!-- Rocket Tab -->
+            <section id="rocket" class="tab-content">
+                <div class="rocket-game-container">
+                    <div class="game-header">
+                        <h2>🚀 Игра "Ракетка"</h2>
+                        <p>Поймай момент и умножь свои звезды!</p>
+                    </div>
+                    
+                    <div class="rocket-game" id="rocketGame">
+                        <!-- Игра ракетка будет здесь -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Tab -->
+            <section id="profile" class="tab-content">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <span id="profileInitials">👤</span>
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="profileName">Загрузка...</h2>
+                            <p id="profileLevel">Уровень 1</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">⭐</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="profileBalance">0</div>
+                                <div class="stat-label">Звезд</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎮</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="profileGames">0</div>
+                                <div class="stat-label">Игр</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎁</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="profileCases">0</div>
+                                <div class="stat-label">Кейсов</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="profileProfit">0</div>
+                                <div class="stat-label">Прибыль</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Инвентарь подарков -->
+                    <div class="inventory-section">
+                        <h3>Мои подарки 🎁</h3>
+                        <div class="inventory-grid" id="inventory-grid">
+                            <div class="inventory-empty">
+                                <span class="empty-icon">📦</span>
+                                <p>Подарки появятся здесь после открытия кейсов</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Case Opening Modal -->
+    <div id="case-modal" class="modal">
+        <div class="modal-content case-modal-content">
+            <!-- Case Opening Animation -->
+            <div id="case-opening" class="case-opening">
+                <h3 class="case-opening-title">Открываем кейс...</h3>
+                
+                <div class="roulette-container">
+                    <div class="roulette-items" id="roulette-items">
+                        <!-- Рулетка предметов -->
+                    </div>
+                </div>
+                
+                <div class="opening-text">
+                    <p>🎰 Крутим барабан...</p>
+                </div>
+            </div>
+
+            <!-- Case Result -->
+            <div id="case-result" class="case-result">
+                <div class="result-emoji" id="result-emoji">🎁</div>
+                <h3 class="result-title" id="result-title">Поздравляем!</h3>
+                <p class="result-description" id="result-description">Вы выиграли приз!</p>
+                
+                <div class="result-actions">
+                    <button class="result-btn" id="open-another-case">Открыть ещё</button>
+                    <button class="result-btn secondary" id="close-case-modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/scripts/cases.js"></script>
+    <script src="src/main.js" type="module"></script>
+</body>
+</html>
