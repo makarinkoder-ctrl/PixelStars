@@ -79,8 +79,12 @@ class CasesManager {
     }
 
     renderCases(cases) {
+        console.log('Rendering cases:', cases); // Debug
         const casesGrid = document.getElementById('cases-grid');
-        if (!casesGrid) return;
+        if (!casesGrid) {
+            console.error('Cases grid not found!');
+            return;
+        }
 
         casesGrid.innerHTML = cases.map(caseData => `
             <div class="case-card ${caseData.rarity}" data-case-id="${caseData.id}">
@@ -92,10 +96,20 @@ class CasesManager {
         `).join('');
         
         // Добавляем обработчики кликов после создания элементов
+        console.log('Adding event listeners for', cases.length, 'cases'); // Debug
         cases.forEach(caseData => {
             const caseCard = casesGrid.querySelector(`[data-case-id="${caseData.id}"]`);
             if (caseCard) {
-                caseCard.addEventListener('click', () => this.showCasePreview(caseData));
+                console.log('Adding click listener for case', caseData.id); // Debug
+                caseCard.addEventListener('click', () => {
+                    console.log('Case clicked:', caseData.id); // Debug
+                    this.showCasePreview(caseData);
+                });
+                
+                // Добавляем визуальную индикацию что можно кликать
+                caseCard.style.cursor = 'pointer';
+            } else {
+                console.error('Case card not found for id:', caseData.id);
             }
         });
     }

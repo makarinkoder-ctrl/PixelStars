@@ -5,7 +5,7 @@ class PixelstarsCasino {
         this.balance = 0;
         this.currentTab = 'home';
         this.telegramUser = null;
-        this.demoMode = true; // Начинаем с демо-режима
+        this.demoMode = false; // Начинаем с реального режима
         this.demoBalance = 10000; // Стартовый демо-баланс
         this.realBalance = 0;
         
@@ -1016,11 +1016,7 @@ class PixelstarsCasino {
         this.updateDemoDisplay();
         this.updateBalanceDisplay();
         
-        const message = this.demoMode 
-            ? '🎮 Включен ДЕМО-режим! Играйте без риска!'
-            : '💰 Включен РЕАЛЬНЫЙ режим! Осторожно со ставками!';
-        
-        this.showNotification(message, this.demoMode ? 'info' : 'warning');
+        // Убираем надписи о безопасности - пользователь сам знает что делает
     }
 
     updateDemoDisplay() {
