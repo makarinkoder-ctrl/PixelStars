@@ -1,7 +1,10 @@
 // Cases functionality
+console.log('🚀 CASES.JS ЗАГРУЖЕН В', new Date().toLocaleTimeString());
+
 class CasesManager {
     constructor() {
         console.log('🎁 CasesManager: Инициализация начата');
+        this.cases = []; // Инициализируем пустой массив
         this.loadCases();
         this.updateInventoryDisplay(); // Загружаем инвентарь при старте
         this.setupEventListeners();
@@ -83,8 +86,10 @@ class CasesManager {
             
             // API возвращает массив кейсов напрямую
             if (Array.isArray(data)) {
+                this.cases = data; // Сохраняем кейсы
                 this.renderCases(data);
             } else if (data.success) {
+                this.cases = data.cases; // Сохраняем кейсы
                 this.renderCases(data.cases);
             } else {
                 throw new Error(data.error || 'Failed to load cases');
@@ -96,32 +101,174 @@ class CasesManager {
     }
 
     renderCases(cases) {
-        console.log('Rendering cases:', cases); // Debug
+        console.log('🎁 Rendering cases:', cases); // Debug
         const casesGrid = document.getElementById('cases-grid');
         if (!casesGrid) {
-            console.error('Cases grid not found!');
+            console.error('❌ Cases grid не найден!');
             return;
         }
 
+        if (!cases || cases.length === 0) {
+            console.warn('⚠️ Нет кейсов для отображения');
+            casesGrid.innerHTML = '<p>Загрузка кейсов...</p>';
+            return;
+        }
+
+        console.log('🎁 Создаем HTML для', cases.length, 'кейсов');
+
         casesGrid.innerHTML = cases.map(caseData => `
-            <div class="case-card ${caseData.rarity}" data-case-id="${caseData.id}" onclick="window.casesManager.directOpenCase('${caseData.id}')">
+            <div class="case-card ${caseData.rarity}" data-case-id="${caseData.id}">
                 <div class="case-image">${caseData.image || caseData.emoji}</div>
                 <div class="case-name">${caseData.name}</div>
                 <div class="case-price">${caseData.price} ⭐</div>
                 <div class="case-description">${caseData.description}</div>
-                <div class="case-open-btn">🎁 ОТКРЫТЬ</div>
+                <div class="case-open-btn" data-case-id="${caseData.id}">🎁 ОТКРЫТЬ</div>
             </div>
         `).join('');
+        
+        // Добавляем обработчики кликов для карточек кейсов (просмотр)
+        const caseCards = casesGrid.querySelectorAll('.case-card');
+        caseCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                // Если клик не по кнопке открытия, показываем модальное окно
+                if (!e.target.classList.contains('case-open-btn')) {
+                    const caseId = card.getAttribute('data-case-id');
+                    console.log('👁️ Клик по кейсу для просмотра:', caseId);
+                    this.showCaseModal(caseId);
+                }
+            });
+        });
+        
+        // Добавляем обработчики кликов для кнопок открытия
+        const openButtons = casesGrid.querySelectorAll('.case-open-btn');
+        openButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const caseId = btn.getAttribute('data-case-id');
+                console.log('🎁 Клик по кнопке открытия кейса:', caseId);
+                this.directOpenCase(caseId);
+            });
+        });
+        
+        console.log('🎁 Добавлены обработчики для', caseCards.length, 'кейсов и', openButtons.length, 'кнопок открытия');
+    }
+
+    // Показать модальное окно с содержимым кейса
+    showCaseModal(caseId) {
+        console.log('👁️ Показываем модальное окно для кейса:', caseId);
+        
+        const caseIdString = String(caseId);
+        const selectedCase = this.cases.find(c => String(c.id) === caseIdString);
+        
+        if (!selectedCase) {
+            console.error('❌ Кейс не найден:', caseIdString);
+            return;
+        }
+
+        console.log('👁️ Найденный кейс:', selectedCase);
+        console.log('🎁 Призы в кейсе:', selectedCase.items);
+        console.log('🔍 Есть ли items?', !!selectedCase.items);
+        console.log('📦 Длина items:', selectedCase.items ? selectedCase.items.length : 'undefined');
+        
+        // Получаем или создаем модальное окно
+        let modal = document.getElementById('casePreviewModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'casePreviewModal';
+            modal.className = 'modal';
+            document.body.appendChild(modal);
+        }
+
+        // Создаем содержимое модального окна
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close" onclick="document.getElementById('casePreviewModal').style.display='none'">&times;</span>
+                <h2>${selectedCase.name}</h2>
+                <div class="modal-case-info">
+                    <div class="modal-case-image">${selectedCase.image || selectedCase.emoji}</div>
+                    <div class="modal-case-details">
+                        <p><strong>Цена:</strong> ${selectedCase.price} ⭐</p>
+                        <p><strong>Описание:</strong> ${selectedCase.description}</p>
+                        <p><strong>Редкость:</strong> ${selectedCase.rarity}</p>
+                    </div>
+                </div>
+                <h3>Возможные призы:</h3>
+                <div class="prizes-grid" id="prizesGrid">
+                    ${selectedCase.items ? selectedCase.items.map(prize => `
+                        <div class="prize-item ${prize.rarity}">
+                            <div class="prize-image">${prize.emoji}</div>
+                            <div class="prize-name">${prize.name}</div>
+                            <div class="prize-value">${prize.value} ⭐</div>
+                            <div class="prize-chance">${prize.dropRate}%</div>
+                        </div>
+                    `).join('') : '<p>Нет данных о призах</p>'}
+                </div>
+                <div class="modal-actions">
+                    <button class="open-case-btn" onclick="window.casesManager.openCaseFromModal('${selectedCase.id}')">
+                        🎁 ОТКРЫТЬ ЗА ${selectedCase.price} ⭐
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Показываем модальное окно
+        modal.style.display = 'block';
+        
+        // Добавляем обработчик закрытия по клику вне модального окна
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+
+    // Открыть кейс из модального окна
+    openCaseFromModal(caseId) {
+        console.log('🎁 Открытие кейса из модального окна:', caseId);
+        
+        // Закрываем модальное окно
+        const modal = document.getElementById('casePreviewModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        // Открываем кейс
+        this.directOpenCase(caseId);
     }
 
     // Прямое открытие кейса без превью для упрощения
     async directOpenCase(caseId) {
-        console.log('Direct open case:', caseId);
+        console.log('🎁 Открытие кейса:', caseId);
+        
+        const caseIdString = String(caseId);
+        const selectedCase = this.cases.find(c => String(c.id) === caseIdString);
+        
+        if (!selectedCase) {
+            console.error('❌ Кейс не найден:', caseIdString);
+            this.showToast('Кейс не найден!', 'error');
+            return;
+        }
+        
+        // Получаем текущий баланс правильным способом
+        const currentBalance = window.getBalance ? window.getBalance() : (window.userStars || 0);
+        
+        console.log('🎁 Проверяем баланс для кейса:', selectedCase.price);
+        console.log('🎁 Текущий баланс:', currentBalance);
+        
+        // Проверяем баланс
+        if (currentBalance < selectedCase.price) {
+            console.log('❌ Недостаточно звезд:', currentBalance, '<', selectedCase.price);
+            this.showToast(`Недостаточно звезд! Нужно: ${selectedCase.price}, есть: ${currentBalance}`, 'error');
+            return;
+        }
+
+        console.log('🎁 Начинаем открытие кейса...');
+        
         try {
-            await this.openCase(caseId);
+            await this.openCase(caseIdString);
         } catch (error) {
-            console.error('Error opening case directly:', error);
-            alert('Ошибка открытия кейса: ' + error.message);
+            console.error('❌ Ошибка открытия кейса:', error);
+            this.showToast('Ошибка открытия кейса: ' + error.message, 'error');
         }
     }
 
@@ -157,10 +304,20 @@ class CasesManager {
             if (data.success) {
                 // Immediately update balance before animation
                 if (data.newBalance !== undefined) {
+                    // Обновляем глобальный баланс
+                    window.userStars = data.newBalance;
+                    
+                    // Обновляем отображение
                     const balanceElement = document.getElementById('balanceAmount');
                     if (balanceElement) {
                         balanceElement.textContent = data.newBalance;
                         console.log(`💰 Баланс сразу обновлен: ${data.newBalance} звезд`);
+                    }
+                    
+                    // Сохраняем в localStorage если не в демо режиме
+                    if (!window.isDemoMode) {
+                        localStorage.setItem('realBalance', data.newBalance.toString());
+                        console.log('💰 Баланс сохранен в localStorage после открытия кейса:', data.newBalance);
                     }
                 }
                 
@@ -195,117 +352,195 @@ class CasesManager {
     }
 
     startRouletteAnimation(winningPrize, allPrizes, newBalance) {
-        const rouletteItems = document.getElementById('roulette-items');
+        console.log('🎰 Запуск рулетки через startRouletteAnimation');
         
-        // Упрощенная анимация для мобильных устройств
-        const isMobile = window.innerWidth <= 768;
+        // Всегда используем новую простую рулетку
+        this.startSimpleRouletteAnimation(winningPrize, allPrizes, newBalance);
         
-        if (isMobile) {
-            // Простая анимация для мобильных
-            this.startSimpleRouletteAnimation(winningPrize, allPrizes, newBalance);
-            return;
+        // Закрываем старое модальное окно если оно есть
+        const modal = document.getElementById('case-modal');
+        if (modal) {
+            modal.style.display = 'none';
         }
         
-        // Полная анимация для десктопа
-        // Generate extended roulette with repeating items
-        const rouletteData = this.generateRouletteItems(winningPrize, allPrizes);
-        
-        // Render roulette items with more visual effects
-        rouletteItems.innerHTML = rouletteData.items.map((item, index) => `
-            <div class="roulette-item ${item.rarity}" data-index="${index}">
-                <div class="roulette-emoji">${item.emoji}</div>
-                <div class="roulette-name">${item.name}</div>
-                <div class="rarity-glow ${item.rarity}"></div>
-            </div>
-        `).join('');
-
-        // Улучшенная анимация как в Gifts Battle
-        const itemWidth = 96; // Увеличил для лучшего вида
-        const winningIndex = rouletteData.winningIndex;
-        
-        // Показываем указатель в центре
-        this.addRoulettePointer();
-        
-        // Начальная позиция - далеко слева
-        rouletteItems.style.transition = 'none';
-        rouletteItems.style.transform = 'translateX(400px)';
-        
-        // Принудительный reflow
-        rouletteItems.offsetHeight;
-        
-        // Расчет финальной позиции для указателя
-        const containerCenter = rouletteItems.parentElement.offsetWidth / 2;
-        const winningElementCenter = winningIndex * itemWidth + itemWidth / 2;
-        const finalPosition = containerCenter - winningElementCenter;
-        
-        // Добавляем несколько полных оборотов + случайность
-        const extraSpins = 4 + Math.floor(Math.random() * 3); // 4-6 полных оборотов
-        const totalWidth = rouletteData.items.length * itemWidth;
-        const randomOffset = (Math.random() - 0.5) * 20; // Небольшое случайное смещение
-        const moveDistance = finalPosition - (extraSpins * totalWidth) + randomOffset;
-
-        console.log(`🎰 Улучшенная анимация: индекс ${winningIndex}, дистанция ${moveDistance}`);
-
-        // Звуковые эффекты (имитация)
-        this.playRouletteSound();
-
-        // Запускаем плавную анимацию с несколькими фазами
-        setTimeout(() => {
-            // Фаза 1: Быстрый старт
-            rouletteItems.style.transition = 'transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            rouletteItems.style.transform = `translateX(${moveDistance * 0.3}px)`;
-            
-            // Фаза 2: Средняя скорость
-            setTimeout(() => {
-                rouletteItems.style.transition = 'transform 1.5s cubic-bezier(0.23, 1, 0.32, 1)';
-                rouletteItems.style.transform = `translateX(${moveDistance * 0.7}px)`;
-                
-                // Фаза 3: Медленное завершение
-                setTimeout(() => {
-                    rouletteItems.style.transition = 'transform 1.8s cubic-bezier(0.19, 1, 0.22, 1)';
-                    rouletteItems.style.transform = `translateX(${moveDistance}px)`;
-                }, 1500);
-            }, 1000);
-        }, 300);
-
-        // Подсветка выигрышного элемента перед результатом
-        setTimeout(() => {
-            this.highlightWinningItem(winningIndex);
-        }, 4300);
-
-        // Show result after complete animation 
-        setTimeout(() => {
-            this.showResult(winningPrize, newBalance);
-        }, 5000); // 5 секунд на полную анимацию
+        // Восстанавливаем скролл
+        document.body.style.overflow = 'auto';
     }
 
     // Упрощенная анимация для мобильных устройств
     startSimpleRouletteAnimation(winningPrize, allPrizes, newBalance) {
-        const rouletteItems = document.getElementById('roulette-items');
+        console.log('🎰 Запуск рулетки для кейса');
+        console.log('🏆 Выигрышный приз:', winningPrize);
         
-        // Простой список призов без сложной анимации
-        const prizes = [winningPrize, ...allPrizes.slice(0, 9)];
+        // Создаем рулетку прямо поверх страницы (как в тесте)
+        const rouletteContainer = document.createElement('div');
+        rouletteContainer.id = 'dynamic-roulette';
+        rouletteContainer.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1000px;
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            overflow: hidden;
+            z-index: 9999;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+        `;
         
-        rouletteItems.innerHTML = prizes.map((item, index) => `
-            <div class="roulette-item ${item.rarity}" data-index="${index}">
-                <div class="roulette-emoji">${item.emoji}</div>
-                <div class="roulette-name">${item.name}</div>
-            </div>
-        `).join('');
-
-        // Простая анимация прокрутки
-        rouletteItems.style.transition = 'none';
-        rouletteItems.style.transform = 'translateX(200px)';
+        // Создаем контейнер для элементов рулетки
+        const rouletteItems = document.createElement('div');
+        rouletteItems.style.cssText = `
+            display: flex;
+            align-items: center;
+            height: 100%;
+            gap: 10px;
+            padding: 10px;
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+        `;
         
-        setTimeout(() => {
-            rouletteItems.style.transition = 'transform 2s ease-out';
-            rouletteItems.style.transform = 'translateX(-100px)';
-        }, 100);
-
-        // Показываем результат быстрее на мобильных
-        setTimeout(() => {
+        // Создаем массив призов из реальных данных кейса
+        const totalItems = 30;
+        const winPosition = 22; // Выигрышная позиция
+        const prizesList = [];
+        
+        console.log('🎁 Призы из кейса для рулетки:', allPrizes);
+        
+        for (let i = 0; i < totalItems; i++) {
+            if (i === winPosition) {
+                prizesList.push(winningPrize);
+            } else if (allPrizes && allPrizes.length > 0) {
+                // Используем реальные призы из кейса
+                const randomPrize = allPrizes[Math.floor(Math.random() * allPrizes.length)];
+                prizesList.push(randomPrize);
+            } else {
+                // Фейковые призы только если нет данных
+                prizesList.push({
+                    name: 'Приз ' + (i + 1),
+                    emoji: '🎁',
+                    rarity: 'common',
+                    value: 100
+                });
+            }
+        }
+        
+        // Создаем HTML элементы
+        prizesList.forEach((prize, index) => {
+            const item = document.createElement('div');
+            // Убираем выделение выигрышного - все элементы одинаковые
+            
+            item.style.cssText = `
+                min-width: 100px;
+                width: 100px;
+                height: 160px;
+                background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
+                color: white;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                flex-shrink: 0;
+                font-size: 12px;
+                font-weight: bold;
+                border: 2px solid #444;
+                position: relative;
+                overflow: hidden;
+            `;
+            
+            item.innerHTML = `
+                <div style="font-size: 32px; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                    ${prize.emoji || prize.image || '🎁'}
+                </div>
+                <div style="text-align: center; line-height: 1.2; margin-bottom: 4px;">
+                    ${(prize.name || 'Приз').substring(0, 8)}
+                </div>
+                <div style="color: #ffd700; font-size: 10px;">
+                    ${prize.value || '?'} ⭐
+                </div>
+            `;
+            
+            rouletteItems.appendChild(item);
+        });
+        
+        rouletteContainer.appendChild(rouletteItems);
+        
+        // Добавляем указатель в центре
+        const pointer = document.createElement('div');
+        pointer.style.cssText = `
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #ffd700;
+            z-index: 10;
+            filter: drop-shadow(0 3px 6px rgba(255, 215, 0, 0.6));
+        `;
+        rouletteContainer.appendChild(pointer);
+        
+        // Добавляем кнопку закрытия
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '✕';
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 68, 68, 0.8);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 16px;
+            font-weight: bold;
+        `;
+        closeBtn.onclick = () => {
+            document.body.removeChild(rouletteContainer);
             this.showResult(winningPrize, newBalance);
-        }, 2500);
+        };
+        rouletteContainer.appendChild(closeBtn);
+        
+        // Добавляем на страницу
+        document.body.appendChild(rouletteContainer);
+        
+        console.log('✅ Рулетка создана с', totalItems, 'элементами');
+        
+        // Запускаем анимацию
+        setTimeout(() => {
+            const containerWidth = rouletteContainer.offsetWidth;
+            const itemWidth = 110; // ширина + gap
+            const centerOffset = containerWidth / 2;
+            const targetX = -(winPosition * itemWidth - centerOffset + 50);
+            
+            console.log('🎯 Анимация к позиции:', targetX);
+            rouletteItems.style.transform = `translateX(${targetX}px)`;
+            
+            // Подсвечиваем победителя через 4 секунды
+            setTimeout(() => {
+                const winnerItem = rouletteItems.children[winPosition];
+                if (winnerItem) {
+                    winnerItem.style.boxShadow = '0 0 30px #ffd700';
+                    winnerItem.style.transform = 'scale(1.05)';
+                    winnerItem.style.zIndex = '5';
+                }
+                
+                // Автоматически закрываем через 3 секунды после подсветки
+                setTimeout(() => {
+                    if (document.body.contains(rouletteContainer)) {
+                        document.body.removeChild(rouletteContainer);
+                        this.showResult(winningPrize, newBalance);
+                    }
+                }, 3000);
+            }, 4000);
+        }, 500);
     }
 
     // Добавить указатель рулетки
@@ -435,6 +670,42 @@ class CasesManager {
     showError(message) {
         // You can implement a toast notification system here
         alert(message);
+    }
+
+    showToast(message, type = 'info') {
+        console.log('💬 Toast:', message, type);
+        
+        // Создаем toast элемент
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#ff4757' : '#2ed573'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Удаляем через 3 секунды
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }
+        }, 3000);
     }
 
     // Показать превью кейса

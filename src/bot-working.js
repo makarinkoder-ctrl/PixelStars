@@ -178,32 +178,70 @@ app.get('/api/cases', async (req, res) => {
       name: 'Стартовый кейс',
       price: 50,
       image: '🎁',
+      emoji: '🎁',
       rarity: 'common',
-      description: 'Базовый кейс для новичков'
+      description: 'Базовый кейс для новичков',
+      items: [
+        { name: 'Роза', value: 0, emoji: '🌹', rarity: 'common', dropRate: 25, type: 'gift' },
+        { name: 'Тюльпан', value: 0, emoji: '🌷', rarity: 'common', dropRate: 25, type: 'gift' },
+        { name: 'Ромашка', value: 0, emoji: '🌼', rarity: 'common', dropRate: 20, type: 'gift' },
+        { name: 'Звезда', value: 0, emoji: '⭐', rarity: 'common', dropRate: 15, type: 'gift' },
+        { name: 'Звезды', value: 0, emoji: '💫', rarity: 'common', dropRate: 15, type: 'gift' }
+      ]
     },
     {
       id: 2,
       name: 'Звездный кейс',
       price: 150,
       image: '⭐',
+      emoji: '⭐',
       rarity: 'rare',
-      description: 'Больше шансов на редкие предметы'
+      description: 'Больше шансов на редкие предметы',
+      items: [
+        { name: 'Связка шаров', value: 0, emoji: '🎈', rarity: 'rare', dropRate: 20, type: 'gift' },
+        { name: 'Торт', value: 0, emoji: '🎂', rarity: 'rare', dropRate: 20, type: 'gift' },
+        { name: 'Кекс', value: 0, emoji: '🧁', rarity: 'rare', dropRate: 15, type: 'gift' },
+        { name: 'Печенье', value: 0, emoji: '🍪', rarity: 'rare', dropRate: 15, type: 'gift' },
+        { name: 'Конфета', value: 0, emoji: '🍬', rarity: 'rare', dropRate: 15, type: 'gift' },
+        { name: 'Шоколад', value: 0, emoji: '🍫', rarity: 'rare', dropRate: 15, type: 'gift' }
+      ]
     },
     {
       id: 3,
       name: 'Премиум кейс',
       price: 300,
       image: '💎',
+      emoji: '💎',
       rarity: 'epic',
-      description: 'Эксклюзивные награды'
+      description: 'Эксклюзивные награды',
+      items: [
+        { name: 'Букет роз', value: 0, emoji: '💐', rarity: 'epic', dropRate: 18, type: 'gift' },
+        { name: 'Плюшевый мишка', value: 0, emoji: '🧸', rarity: 'epic', dropRate: 16, type: 'gift' },
+        { name: 'Изумруд', value: 0, emoji: '💚', rarity: 'epic', dropRate: 14, type: 'gift' },
+        { name: 'Сапфир', value: 0, emoji: '💙', rarity: 'epic', dropRate: 14, type: 'gift' },
+        { name: 'Рубин', value: 0, emoji: '❤️', rarity: 'epic', dropRate: 14, type: 'gift' },
+        { name: 'Бриллиант', value: 0, emoji: '💎', rarity: 'legendary', dropRate: 12, type: 'gift' },
+        { name: 'Корона', value: 0, emoji: '👑', rarity: 'legendary', dropRate: 12, type: 'gift' }
+      ]
     },
     {
       id: 4,
       name: 'Легендарный кейс',
       price: 500,
       image: '👑',
+      emoji: '👑',
       rarity: 'legendary',
-      description: 'Самые редкие предметы'
+      description: 'Самые редкие предметы',
+      items: [
+        { name: 'Особая роза', value: 0, emoji: '🌹', rarity: 'legendary', dropRate: 12, type: 'gift' },
+        { name: 'Золотая звезда', value: 0, emoji: '🌟', rarity: 'legendary', dropRate: 12, type: 'gift' },
+        { name: 'Сверхновая звезда', value: 0, emoji: '✨', rarity: 'legendary', dropRate: 12, type: 'gift' },
+        { name: 'Космический огонь', value: 0, emoji: '🔥', rarity: 'legendary', dropRate: 12, type: 'gift' },
+        { name: 'Редкий изумруд', value: 0, emoji: '💚', rarity: 'legendary', dropRate: 12, type: 'gift' },
+        { name: 'Огромная корона', value: 0, emoji: '👑', rarity: 'legendary', dropRate: 10, type: 'gift' },
+        { name: 'Платиновый мишка', value: 0, emoji: '🧸', rarity: 'legendary', dropRate: 10, type: 'gift' },
+        { name: 'Космический подарок', value: 0, emoji: '🎁', rarity: 'legendary', dropRate: 8, type: 'gift' }
+      ]
     }
   ];
   res.json(cases);

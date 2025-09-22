@@ -5,9 +5,6 @@ class PixelstarsCasino {
         this.balance = 0;
         this.currentTab = 'home';
         this.telegramUser = null;
-        this.demoMode = false; // Начинаем с реального режима
-        this.demoBalance = 10000; // Стартовый демо-баланс
-        this.realBalance = 0;
         
         this.init();
     }
@@ -72,32 +69,29 @@ class PixelstarsCasino {
 
     async loadUserData() {
         try {
+            // Баланс всегда ноль
+            this.balance = 0;
+            console.log('💰 Баланс установлен на 0');
+
             if (this.telegramUser) {
-                const response = await fetch(`/api/user/${this.telegramUser.id}`);
-                if (response.ok) {
-                    this.user = await response.json();
-                    this.realBalance = this.user.stars_balance; // Устанавливаем реальный баланс
-                } else {
-                    // Create default user data for demo
-                    this.user = {
-                        telegram_id: this.telegramUser.id,
-                        first_name: this.telegramUser.first_name,
-                        stars_balance: 1000,
-                        level: 1,
-                        experience: 0,
-                        total_won: 0,
-                        total_spent: 0,
-                        games_played: 0,
-                        cases_opened: 0
-                    };
-                    this.realBalance = 1000; // Устанавливаем реальный баланс
+                try {
+                    const response = await fetch(`/api/user/${this.telegramUser.id}`);
+                    if (response.ok) {
+                        this.user = await response.json();
+                        // Игнорируем баланс с сервера - всегда ноль
+                        console.log('💰 Данные пользователя загружены, баланс остается 0');
+                    } else {
+                        console.log('💰 API пользователя недоступен, баланс остается 0');
+                    }
+                } catch (apiError) {
+                    console.log('💰 Ошибка API пользователя:', apiError.message);
                 }
-            } else {
-                // Режим разработки без Telegram
+                
+                // Create user object for display
                 this.user = {
-                    telegram_id: 123456,
-                    first_name: 'Test User',
-                    stars_balance: 1000,
+                    telegram_id: this.telegramUser.id,
+                    first_name: this.telegramUser.first_name,
+                    stars_balance: this.balance,
                     level: 1,
                     experience: 0,
                     total_won: 0,
@@ -105,17 +99,32 @@ class PixelstarsCasino {
                     games_played: 0,
                     cases_opened: 0
                 };
-                this.realBalance = 1000; // Устанавливаем реальный баланс
+            } else {
+                // Режим разработки без Telegram
+                this.user = {
+                    telegram_id: 123456,
+                    first_name: 'Test User',
+                    stars_balance: this.balance,
+                    level: 1,
+                    experience: 0,
+                    total_won: 0,
+                    total_spent: 0,
+                    games_played: 0,
+                    cases_opened: 0
+                };
             }
             
-            // Устанавливаем текущий баланс в зависимости от режима
-            this.balance = this.demoMode ? this.demoBalance : this.realBalance;
+            console.log('💰 Финальный баланс:', this.balance);
         } catch (error) {
             console.error('Error loading user data:', error);
-            // Fallback значения
-            this.realBalance = 1000;
-            this.balance = this.demoMode ? this.demoBalance : this.realBalance;
+            // Fallback значения - всегда ноль
+            this.balance = 0;
         }
+    }
+
+    // Баланс не сохраняется - всегда ноль
+    saveBalance() {
+        console.log('💰 Баланс не сохраняется - всегда остается 0');
     }
 
     updateUI() {
@@ -148,20 +157,18 @@ class PixelstarsCasino {
             });
         });
         
-        // Demo mode toggle
-        const demoToggle = document.getElementById('demoToggle');
-        if (demoToggle) {
-            demoToggle.addEventListener('click', () => {
-                this.toggleDemoMode();
-            });
-        }
-        
         // Close modal on backdrop click
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
                 this.closeModal();
             }
         });
+        
+        // Top-up modal close button
+        const closeTopUpBtn = document.getElementById('close-top-up-modal');
+        if (closeTopUpBtn) {
+            closeTopUpBtn.addEventListener('click', window.closeTopUpModal);
+        }
 
         // Скрывающаяся шапка при прокрутке
         let lastScrollY = window.scrollY;
@@ -717,6 +724,8 @@ class PixelstarsCasino {
             } else {
                 this.realBalance -= betAmount;
                 this.balance = this.realBalance;
+                // Сохраняем новый реальный баланс
+                this.saveRealBalance();
             }
             this.updateUI();
             
@@ -782,8 +791,16 @@ class PixelstarsCasino {
             const currentMultiplier = this.currentGameMultiplier || 1.0;
             const winAmount = Math.floor(this.playerBet.amount * currentMultiplier);
             
-            // Добавляем выигрыш к балансу
-            this.balance += winAmount;
+            // Добавляем выигрыш к правильному балансу
+            if (this.demoMode) {
+                this.demoBalance += winAmount;
+                this.balance = this.demoBalance;
+            } else {
+                this.realBalance += winAmount;
+                this.balance = this.realBalance;
+                // Сохраняем новый реальный баланс
+                this.saveRealBalance();
+            }
             this.updateUI();
             
             // Помечаем как выведено
@@ -1017,60 +1034,11 @@ class PixelstarsCasino {
         }, 3000);
     }
 
-    // Demo Mode Management
-    toggleDemoMode() {
-        this.demoMode = !this.demoMode;
-        this.updateDemoDisplay();
-        this.updateBalanceDisplay();
-        
-        // Убираем надписи о безопасности - пользователь сам знает что делает
-    }
-
-    updateDemoDisplay() {
-        console.log('💰 updateDemoDisplay вызван, demoMode:', this.demoMode);
-        const demoBtn = document.getElementById('demoToggle');
-        const balanceMode = document.getElementById('balanceMode');
-        const demoNotice = document.getElementById('demoNotice');
-        
-        console.log('💰 Элементы UI:', {
-            demoBtn: !!demoBtn,
-            balanceMode: !!balanceMode,
-            demoNotice: !!demoNotice
-        });
-        
-        // Проверяем что элементы существуют
-        if (!demoBtn || !balanceMode) {
-            console.log('💰 Demo elements not found, skipping update');
-            return;
-        }
-        
-        if (this.demoMode) {
-            console.log('💰 Включаем ДЕМО режим в UI');
-            demoBtn.classList.add('active');
-            demoBtn.classList.remove('real');
-            demoBtn.innerHTML = '<span class="demo-icon">🎮</span><span class="demo-text">ДЕМО</span>';
-            balanceMode.textContent = 'демо';
-            if (demoNotice) demoNotice.classList.remove('hidden');
-            this.balance = this.demoBalance;
-        } else {
-            console.log('💰 Включаем РЕАЛЬНЫЙ режим в UI');
-            demoBtn.classList.remove('active');
-            demoBtn.classList.add('real');
-            demoBtn.innerHTML = '<span class="demo-icon">💰</span><span class="demo-text">РЕАЛ</span>';
-            balanceMode.textContent = 'реал';
-            if (demoNotice) demoNotice.classList.add('hidden');
-            this.balance = this.realBalance;
-        }
-    }
-
     updateBalanceDisplay() {
         const balanceElement = document.getElementById('balanceAmount');
         if (balanceElement) {
             balanceElement.textContent = this.balance.toLocaleString();
         }
-        
-        // Обновляем демо-дисплей
-        this.updateDemoDisplay();
     }
 }
 
@@ -1078,6 +1046,74 @@ class PixelstarsCasino {
 window.switchTab = (tab) => window.app.switchTab(tab);
 window.showDailyBonus = () => window.app.showNotification('🎊 Ежедневный бонус: +100 звезд!', 'success');
 window.showLeaderboard = () => window.app.switchTab('profile');
+
+// Global balance functions for cases
+window.getBalance = () => {
+    return window.app ? window.app.balance : 0;
+};
+
+window.updateBalance = (amount) => {
+    if (window.app) {
+        // Баланс всегда остается 0, независимо от amount
+        window.app.balance = 0;
+        window.app.updateBalanceDisplay();
+        
+        console.log('💰 Попытка изменить баланс на', amount, 'но баланс остается 0');
+    }
+};
+
+// Top-up functions
+window.openTopUpModal = () => {
+    const modal = document.getElementById('top-up-modal');
+    const balanceDisplay = document.getElementById('current-balance-display');
+    
+    if (modal && window.app) {
+        // Обновляем отображение текущего баланса
+        if (balanceDisplay) {
+            balanceDisplay.textContent = `${window.app.balance.toLocaleString()} звезд`;
+        }
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Добавляем обработчики для пакетов
+        const packages = modal.querySelectorAll('.package-item');
+        packages.forEach(pkg => {
+            pkg.addEventListener('click', () => {
+                const stars = pkg.dataset.stars;
+                const price = pkg.dataset.price;
+                window.selectTopUpPackage(stars, price);
+            });
+        });
+    }
+};
+
+window.closeTopUpModal = () => {
+    const modal = document.getElementById('top-up-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+};
+
+window.selectTopUpPackage = (stars, price) => {
+    // Показываем пользователю выбранный пакет
+    window.app.showNotification(`💳 Выбран пакет: ${stars} звезд за ${price}₽. Перейдите к боту @puwmvshop_bot для оплаты!`, 'info');
+    
+    // Копируем информацию в буфер обмена для удобства
+    const packageInfo = `Пакет: ${stars} звезд за ${price}₽\nID пользователя: ${window.app.user?.telegram_id || 'неизвестен'}`;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(packageInfo).then(() => {
+            console.log('💳 Информация о пакете скопирована в буфер обмена');
+        }).catch(err => {
+            console.log('💳 Не удалось скопировать в буфер обмена');
+        });
+    }
+    
+    // Открываем ссылку на бота
+    window.open('https://t.me/puwmvshop_bot', '_blank');
+};
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

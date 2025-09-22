@@ -30,19 +30,14 @@
                     <span class="logo-icon">⭐</span>
                     <span class="logo-text">Pixelstars</span>
                 </div>
-                
-                <!-- Demo Mode Toggle -->
-                <div class="demo-toggle">
-                    <button class="demo-btn" id="demoToggle">
-                        <span class="demo-icon">🎮</span>
-                        <span class="demo-text">ДЕМО</span>
-                    </button>
-                </div>
 
                 <div class="balance-display">
                     <div class="balance-amount" id="balanceAmount">0</div>
                     <div class="balance-label">звезд</div>
-                    <div class="balance-mode" id="balanceMode">демо</div>
+                    <button class="top-up-btn" id="topUpBtn" onclick="openTopUpModal()">
+                        <span class="top-up-icon">💳</span>
+                        <span class="top-up-text">Пополнить</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -71,16 +66,6 @@
         <main class="content">
             <!-- Home Tab -->
             <section id="home" class="tab-content active">
-                <!-- Demo Mode Notice -->
-                <div class="demo-notice" id="demoNotice">
-                    <div class="demo-notice-content">
-                        <span class="demo-notice-icon">🎮</span>
-                        <div class="demo-notice-text">
-                            <strong>ДЕМО-РЕЖИМ</strong>
-                            <p>Вы играете на виртуальные деньги. Никаких рисков!</p>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="welcome-section">
                     <div class="welcome-card">
@@ -283,7 +268,78 @@
         </div>
     </div>
 
-    <script src="src/scripts/cases.js"></script>
-    <script src="src/main.js" type="module"></script>
+    <!-- Top Up Modal -->
+    <div id="top-up-modal" class="modal">
+        <div class="modal-content top-up-content">
+            <div class="top-up-header">
+                <h2>💳 Пополнение баланса</h2>
+                <span class="close-modal" id="close-top-up-modal">&times;</span>
+            </div>
+            
+            <div class="top-up-body">
+                <div class="top-up-info">
+                    <div class="current-balance">
+                        <span class="balance-label">Текущий баланс:</span>
+                        <span class="balance-value" id="current-balance-display">0 звезд</span>
+                    </div>
+                </div>
+                
+                <div class="top-up-packages">
+                    <h3>Выберите пакет звезд:</h3>
+                    
+                    <div class="package-grid">
+                        <div class="package-item" data-stars="100" data-price="99">
+                            <div class="package-stars">⭐ 100</div>
+                            <div class="package-price">99₽</div>
+                            <div class="package-bonus">Стартовый</div>
+                        </div>
+                        
+                        <div class="package-item popular" data-stars="500" data-price="449">
+                            <div class="package-badge">Популярный</div>
+                            <div class="package-stars">⭐ 500</div>
+                            <div class="package-price">449₽</div>
+                            <div class="package-bonus">+50 бонус</div>
+                        </div>
+                        
+                        <div class="package-item" data-stars="1000" data-price="799">
+                            <div class="package-stars">⭐ 1000</div>
+                            <div class="package-price">799₽</div>
+                            <div class="package-bonus">+100 бонус</div>
+                        </div>
+                        
+                        <div class="package-item vip" data-stars="2500" data-price="1899">
+                            <div class="package-badge">VIP</div>
+                            <div class="package-stars">⭐ 2500</div>
+                            <div class="package-price">1899₽</div>
+                            <div class="package-bonus">+300 бонус</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="top-up-bot-info">
+                    <div class="bot-instruction">
+                        <h4>🤖 Как пополнить:</h4>
+                        <ol>
+                            <li>Выберите пакет звезд выше</li>
+                            <li>Перейдите к боту @puwmvshop_bot</li>
+                            <li>Следуйте инструкциям бота для оплаты</li>
+                            <li>Звезды автоматически зачислятся на ваш счет</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bot-actions">
+                        <a href="https://t.me/puwmvshop_bot" target="_blank" class="bot-link-btn">
+                            <span class="bot-icon">💬</span>
+                            <span class="bot-text">Перейти к боту</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/scripts/cases.js?v=135"></script>
+    <script src="src/main.js?v=135" type="module"></script>
 </body>
+</html>
 </html>
