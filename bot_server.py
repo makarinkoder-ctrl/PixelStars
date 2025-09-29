@@ -42,7 +42,7 @@ def create_main_keyboard():
             [
                 {
                     "text": "🎮 PixelStars Casino",
-                    "url": "http://localhost:8200"
+                    "web_app": {"url": "https://pixel-stars.vercel.app"}
                 }
             ],
             [
@@ -72,13 +72,13 @@ def create_games_keyboard():
             [
                 {
                     "text": "🚀 Играть в Crash",
-                    "url": "http://localhost:8200"
+                    "web_app": {"url": "https://pixel-stars.vercel.app"}
                 }
             ],
             [
                 {
                     "text": "🎁 Открыть кейсы",
-                    "url": "http://localhost:8200"
+                    "web_app": {"url": "https://pixel-stars.vercel.app"}
                 }
             ],
             [
@@ -161,7 +161,7 @@ def process_message(message):
 • Собирай коллекцию
 
 ❓ <b>Нужна помощь?</b>
-Играй на: http://localhost:8200"""
+Играй на: https://pixel-stars.vercel.app"""
         
         send_message(chat_id, help_message)
         
@@ -174,7 +174,7 @@ def process_message(message):
 💎 Общий выигрыш: 0
 
 🎯 Играйте, чтобы увеличить баланс!
-🌐 Играть: http://localhost:8200"""
+🌐 Играть: https://pixel-stars.vercel.app"""
         
         send_message(chat_id, balance_message)
         
@@ -215,7 +215,7 @@ def process_message(message):
 /balance - Баланс
 /games - Игры
 
-🎮 Для игры открой: http://localhost:8200"""
+🎮 Для игры открой: https://pixel-stars.vercel.app"""
         
         send_message(chat_id, default_message)
 

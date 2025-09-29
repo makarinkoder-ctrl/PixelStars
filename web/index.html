@@ -1602,20 +1602,30 @@
         // Загрузить инвентарь
         async function loadInventory() {
             try {
-                const telegramId = window.pixelstarsCasino?.user?.telegram_id || 999999999;
+                console.log('🎒 Загрузка инвентаря...');
                 
-                const response = await fetch(`/api/inventory/${telegramId}`);
-                const data = await response.json();
+                // Получаем пользователя
+                const user = window.pixelstarsCasino?.user || window.pixelstarsCasino?.telegramUser;
+                const telegramId = user?.id || user?.telegram_id || 999999999;
                 
-                if (response.ok) {
-                    displayInventory(data.inventory);
-                    updateInventoryStats(data.inventory);
-                } else {
-                    console.error('Ошибка загрузки инвентаря:', data.error);
+                console.log('👤 Пользователь для инвентаря:', user);
+                
+                // Имитируем загрузку инвентаря (пока нет API)
+                setTimeout(() => {
+                    // Обновляем имя профиля
+                    const profileName = document.getElementById('profileName');
+                    if (profileName && user) {
+                        const name = user.first_name || user.username || 'Игрок';
+                        profileName.textContent = `👋 ${name}`;
+                    }
+                    
+                    // Показываем пустой инвентарь с красивым сообщением
                     showEmptyInventory();
-                }
+                    console.log('✅ Инвентарь загружен (демо режим)');
+                }, 500);
+                
             } catch (error) {
-                console.error('Ошибка соединения при загрузке инвентаря:', error);
+                console.error('❌ Ошибка загрузки инвентаря:', error);
                 showEmptyInventory();
             }
         }

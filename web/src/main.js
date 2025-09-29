@@ -48,8 +48,14 @@ class PixelstarsCasino {
     }
 
     async initTelegram() {
+        console.log('🔍 Инициализация Telegram WebApp...');
+        
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
+            console.log('📱 Telegram WebApp найден:', tg);
+            console.log('📋 initData:', tg.initData);
+            console.log('👤 initDataUnsafe:', tg.initDataUnsafe);
+            
             this.telegramUser = tg.initDataUnsafe?.user;
             
             // Configure Telegram WebApp
@@ -64,9 +70,11 @@ class PixelstarsCasino {
             // Показываем информацию о пользователе
             if (this.telegramUser) {
                 console.log('🎉 Telegram пользователь найден:', this.telegramUser);
+                this.showUserInfo();
                 this.showWelcomeMessage();
             } else {
-                console.log('⚠️ Нет данных Telegram пользователя');
+                console.log('⚠️ Нет данных Telegram пользователя, проверяем URL параметры...');
+                this.checkUrlParameters();
             }
         } else {
             console.log('⚠️ Telegram WebApp не обнаружен, используем демо режим');
@@ -246,6 +254,7 @@ class PixelstarsCasino {
                 this.user = await response.json();
                 this.balance = this.user.stars_balance;
                 console.log('🎮 Демо пользователь зарегистрирован с балансом', this.balance, 'звезд');
+                this.updateUI();
                 return;
             }
         } catch (error) {
@@ -268,6 +277,83 @@ class PixelstarsCasino {
         
         this.balance = 500;
         console.log('🎮 Локальный демо пользователь создан с балансом 500 звезд');
+        
+        // Обновляем UI после создания пользователя
+        this.updateUI();
+    }
+
+    // Показать информацию о пользователе
+    showUserInfo() {
+        if (this.telegramUser) {
+            console.log('👤 Пользователь Telegram:');
+            console.log('  ID:', this.telegramUser.id);
+            console.log('  Имя:', this.telegramUser.first_name);
+            console.log('  Username:', this.telegramUser.username);
+            console.log('  Язык:', this.telegramUser.language_code);
+            
+            // Показываем приветствие в интерфейсе
+            const welcomeText = `Добро пожаловать, ${this.telegramUser.first_name}! 🎮`;
+            this.showNotification(welcomeText, 'success');
+        }
+    }
+
+    // Проверить URL параметры
+    checkUrlParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        console.log('🔗 URL параметры:', Object.fromEntries(urlParams));
+        
+        const tgData = urlParams.get('tgWebAppData');
+        if (tgData) {
+            console.log('📱 Данные Telegram из URL:', tgData);
+            // Попытка распарсить данные
+            try {
+                const decoded = decodeURIComponent(tgData);
+                console.log('📋 Декодированные данные:', decoded);
+            } catch (e) {
+                console.log('❌ Ошибка декодирования:', e);
+            }
+        } else {
+            console.log('⚠️ Нет Telegram данных в URL, переход в демо режим');
+            this.createDemoUser();
+        }
+    }
+
+    // Показать уведомление
+    showNotification(message, type = 'info') {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        // Цвета для разных типов
+        const colors = {
+            success: '#22c55e',
+            error: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+        
+        notification.style.background = colors[type] || colors.info;
+        notification.textContent = message;
+        
+        // Добавляем на страницу
+        document.body.appendChild(notification);
+        
+        // Удаляем через 3 секунды
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 
     // Создать резервного пользователя
@@ -400,9 +486,7 @@ class PixelstarsCasino {
             this.initRocketGame();
         } else if (tabName === 'profile') {
             // Загружаем инвентарь при переключении на профиль
-            if (window.loadInventory) {
-                window.loadInventory();
-            }
+            this.loadInventory();
         }
     }
 
@@ -426,6 +510,37 @@ class PixelstarsCasino {
                     console.error('❌ CasesManager не загружен!');
                 }
             }, 1000);
+        }
+    }
+
+    loadInventory() {
+        console.log('🎒 Загрузка профиля...');
+        
+        // Убираем состояние загрузки
+        const profileName = document.getElementById('profileName');
+        if (profileName && this.telegramUser) {
+            profileName.textContent = this.telegramUser.first_name || 'Игрок';
+        }
+        
+        // Показываем базовую информацию
+        const inventoryList = document.getElementById('inventoryList');
+        if (inventoryList) {
+            inventoryList.innerHTML = `
+                <div class="inventory-item">
+                    <div class="item-icon">🎮</div>
+                    <div class="item-info">
+                        <div class="item-name">Игровой аккаунт</div>
+                        <div class="item-description">Базовый аккаунт PixelStars</div>
+                    </div>
+                </div>
+                <div class="inventory-item">
+                    <div class="item-icon">⭐</div>
+                    <div class="item-info">
+                        <div class="item-name">Стартовые звезды</div>
+                        <div class="item-description">Бонус при регистрации</div>
+                    </div>
+                </div>
+            `;
         }
     }
 
