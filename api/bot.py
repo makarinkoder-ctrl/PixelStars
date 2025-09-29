@@ -1,13 +1,10 @@
 import json
 import requests
 import os
-from flask import Flask, request, jsonify
 
 # Конфигурация бота
 BOT_TOKEN = os.environ.get('BOT_TOKEN', '8475765506:AAFENFMSv1Zp9QYMgVnmFonk8I2RJTDQErE')
 BOT_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-
-app = Flask(__name__)
 
 def send_message(chat_id, text, parse_mode='HTML', reply_markup=None):
     """Отправка сообщения пользователю"""
@@ -19,6 +16,14 @@ def send_message(chat_id, text, parse_mode='HTML', reply_markup=None):
     }
     
     if reply_markup:
+        data['reply_markup'] = reply_markup
+    
+    try:
+        response = requests.post(url, json=data, timeout=10)
+        return response.json()
+    except Exception as e:
+        print(f"Ошибка отправки сообщения: {e}")
+        return None
         data['reply_markup'] = reply_markup
     
     try:
