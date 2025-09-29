@@ -1,105 +1,22 @@
 {
-  "name": "pixelstars-casino-bot",
+  "name": "pixelstars-casino",
   "version": "2.0.0",
-  "description": "🌟 Telegram Web App Casino с краш игрой 24/7, системой звезд и Vercel деплоем",
-  "type": "module",
+  "description": "Мой Telegram Casino бот с краш игрой 24/7",
   "main": "api/bot.py",
-  "homepage": "https://github.com/makarinkoder-ctrl/PixelStars",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/makarinkoder-ctrl/PixelStars.git"
-  },
-  "bugs": {
-    "url": "https://github.com/makarinkoder-ctrl/PixelStars/issues"
-  },
   "scripts": {
     "start": "python bot_server.py",
     "dev": "python bot_server.py",
     "dev:web": "python -m http.server 8200 --directory web",
-    "dev:bot": "python bot_server.py",
-    "build": "echo 'Статический проект, сборка не требуется'",
-    "test": "python -m pytest tests/ -v",
-    "test:bot": "python test_bot.py",
     "deploy": "vercel --prod",
-    "setup:webhook": "./setup-webhook.sh",
-    "check:env": "python -c 'import os; print(\"BOT_TOKEN:\", \"✅\" if os.getenv(\"BOT_TOKEN\") else \"❌\")'",
-    "install:python": "pip install -r requirements.txt",
-    "install:venv": "python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt",
-    "clean": "rm -rf __pycache__ .pytest_cache *.pyc",
-    "format": "black . && isort .",
-    "lint": "flake8 . && mypy .",
-    "docs": "echo 'Документация доступна в README.md и CONTRIBUTING.md'"
+    "setup:webhook": "./setup-webhook.sh"
   },
   "keywords": [
     "telegram",
     "bot",
     "casino",
     "crash-game",
-    "web-app",
-    "vercel",
-    "python",
-    "flask",
-    "gambling",
-    "stars",
-    "pixelstars",
-    "24/7",
-    "auto-withdraw",
-    "mobile",
-    "serverless"
+    "pixelstars"
   ],
-  "author": {
-    "name": "PixelStars Team",
-    "url": "https://github.com/makarinkoder-ctrl"
-  },
-  "contributors": [
-    {
-      "name": "makarinkoder-ctrl",
-      "url": "https://github.com/makarinkoder-ctrl"
-    }
-  ],
-  "license": "MIT",
-  "engines": {
-    "python": ">=3.8",
-    "node": ">=16.0.0"
-  },
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
-  ],
-  "dependencies": {
-    "telegraf": "^4.15.6",
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "better-sqlite3": "^9.2.2",
-    "uuid": "^9.0.1",
-    "node-cron": "^3.0.3"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
-  },
-  "pythonDependencies": {
-    "Flask": ">=2.3.0",
-    "requests": ">=2.31.0"
-  },
-  "vercel": {
-    "functions": {
-      "api/bot.py": {
-        "runtime": "python3.9"
-      }
-    }
-  },
-  "funding": {
-    "type": "github",
-    "url": "https://github.com/sponsors/makarinkoder-ctrl"
-  },
-  "config": {
-    "defaultPort": 8200,
-    "botApiTimeout": 10000,
-    "maxCrashMultiplier": 100.0,
-    "minBet": 10,
-    "maxBet": 5000,
-    "initialBalance": 1000
-  }
+  "author": "makarinkoder-ctrl",
+  "license": "MIT"
 }

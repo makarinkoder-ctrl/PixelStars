@@ -1,11 +1,47 @@
 
-# 🌟 PixelStars Casino Bot
+# 🌟 PixelStars Casino
 
-> **Telegram Web App казино с краш игрой, кейсами и системой звезд**
+> **Мой Telegram Casino бот с краш игрой 24/7**
 
-[![GitHub](https://img.shields.io/badge/GitHub-makarinkoder--ctrl%2FPixelStars-blue)](https://github.com/makarinkoder-ctrl/PixelStars)
-[![Bot](https://img.shields.io/badge/Telegram-@PixelStarsK_bot-blue)](https://t.me/PixelStarsK_bot)
-[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com)
+## 🎮 Особенности
+
+- **🚀 Краш игра 24/7** - множители до 100x с автовыводом
+- **🎯 История крашей** - показывает последние 4 результата  
+- **🤖 Telegram бот** с inline клавиатурой
+- **🎮 Кнопка PixelStars** - открывает веб-приложение
+- **⭐ Система звезд** с бонусами и наградами
+- **📱 Мобильная версия** оптимизирована для телефонов
+
+## 🚀 Запуск
+
+### Локально
+```bash
+# Веб-сервер
+cd web
+python -m http.server 8200
+
+# Бот сервер
+python bot_server.py
+```
+
+### Production (Vercel)
+```bash
+vercel --prod
+./setup-webhook.sh https://your-domain.vercel.app
+```
+
+## 🔧 Настройка
+
+1. Создайте бота в @BotFather
+2. Скопируйте токен в `.env`
+3. Настройте кнопку меню в боте
+4. Деплойте на Vercel
+
+## 🎮 Бот: [@PixelStarsK_bot](https://t.me/PixelStarsK_bot)
+
+---
+
+*Мой личный проект PixelStars Casino* 🌟
 
 ## 🎮 Особенности
 
