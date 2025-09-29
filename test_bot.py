@@ -30,7 +30,7 @@ def send_test_message():
                         [
                             {
                                 "text": "🎮 PixelStars Casino",
-                                "url": "http://localhost:8200"
+                                "web_app": {"url": "https://pixel-stars.vercel.app"}
                             }
                         ],
                         [
