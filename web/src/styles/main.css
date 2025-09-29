@@ -6,6 +6,35 @@
 }
 
 :root {
+    /* Telegram Web App Colors */
+    --tg-bg: var(--tg-theme-bg-color, #0f0f23);
+    --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #1a1a35);
+    --tg-text: var(--tg-theme-text-color, #ffffff);
+    --tg-text-secondary: var(--tg-theme-hint-color, #94a3b8);
+    --tg-button: var(--tg-theme-button-color, #6366f1);
+    --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+    
+    /* Mobile-first Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-2xl: 24px;
+    
+    /* Mobile-first Font Sizes */
+    --font-xs: 0.7rem;
+    --font-sm: 0.8rem;
+    --font-md: 0.9rem;
+    --font-lg: 1rem;
+    --font-xl: 1.1rem;
+    --font-2xl: 1.2rem;
+    
+    /* Mobile-first Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    
     /* Modern Color Palette */
     --primary: #6366f1;
     --primary-light: #818cf8;
@@ -320,8 +349,8 @@ body::before {
 .main-nav {
     display: flex;
     background: var(--tg-secondary-bg);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    margin: 0 var(--spacing-md);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    margin: 0 var(--spacing-sm);
     overflow: hidden;
     box-shadow: var(--shadow-light);
 }
@@ -369,17 +398,19 @@ body::before {
     flex: 1;
     background: var(--bg-tertiary);
     border: 1px solid rgba(99, 102, 241, 0.1);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm);
     color: var(--text-secondary);
-    padding: 1rem 0.75rem;
+    padding: var(--spacing-sm) var(--spacing-xs);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 2px;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
     backdrop-filter: blur(10px);
+    font-size: var(--font-xs);
+    min-height: 50px;
 }
 
 .nav-item:hover {
@@ -406,20 +437,21 @@ body::before {
 }
 
 .nav-icon {
-    font-size: 1.25rem;
+    font-size: var(--font-lg);
 }
 
 .nav-label {
-    font-size: 0.75rem;
+    font-size: var(--font-xs);
     font-weight: 500;
+    line-height: 1;
 }
 
 /* Content */
 .content {
-    padding: var(--spacing-lg) var(--spacing-md);
-    max-width: 480px;
+    padding: var(--spacing-sm) var(--spacing-sm);
+    max-width: 100%;
     margin: 0 auto;
-    min-height: calc(100vh - 200px);
+    min-height: calc(100vh - 120px);
 }
 
 .tab-content {
@@ -718,61 +750,64 @@ body::before {
 .profile-header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
-    padding: var(--spacing-lg);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
     background: var(--tg-secondary-bg);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
 }
 
 .profile-avatar {
-    width: 60px;
-    height: 60px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1rem;
 }
 
 .profile-info h2 {
-    font-size: 1.25rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 2px;
+    line-height: 1.2;
 }
 
 .profile-info p {
     color: var(--tg-text-secondary);
+    font-size: 0.75rem;
+    margin: 0;
 }
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
+    gap: var(--spacing-xs);
 }
 
 .stat-card {
     background: var(--tg-secondary-bg);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: var(--spacing-xs);
 }
 
 .stat-card .stat-icon {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 
 .stat-content .stat-value {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
     line-height: 1;
 }
 
 .stat-content .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     color: var(--tg-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -5323,4 +5358,76 @@ body::before {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: crash-flash 0.5s ease-in-out;
+}
+
+/* Telegram Web App Mobile Optimization */
+@media (max-width: 768px) {
+    body {
+        font-size: var(--font-sm);
+        line-height: 1.4;
+    }
+    
+    .container {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .main-nav {
+        margin: 0;
+        border-radius: 0;
+    }
+    
+    .nav-item {
+        padding: var(--spacing-xs) 2px;
+        min-height: 45px;
+        font-size: var(--font-xs);
+    }
+    
+    .nav-icon {
+        font-size: var(--font-md);
+    }
+    
+    .nav-label {
+        font-size: 10px;
+    }
+    
+    .content {
+        padding: var(--spacing-xs);
+        min-height: calc(100vh - 100px);
+    }
+    
+    .profile-header {
+        padding: var(--spacing-xs);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .profile-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: var(--font-sm);
+    }
+    
+    .profile-info h2 {
+        font-size: var(--font-sm);
+    }
+    
+    .profile-info p {
+        font-size: 10px;
+    }
+    
+    .stat-card {
+        padding: var(--spacing-xs);
+    }
+    
+    .stat-icon {
+        font-size: var(--font-md) !important;
+    }
+    
+    .stat-value {
+        font-size: var(--font-md) !important;
+    }
+    
+    .stat-label {
+        font-size: 10px !important;
+    }
 }
