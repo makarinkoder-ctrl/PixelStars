@@ -40,7 +40,7 @@ def create_main_keyboard(base_url):
             [
                 {
                     "text": "🎮 PixelStars Casino",
-                    "url": base_url
+                    "web_app": {"url": "https://pixel-stars.vercel.app"}
                 }
             ],
             [
@@ -70,13 +70,13 @@ def create_games_keyboard(base_url):
             [
                 {
                     "text": "🚀 Играть в Crash",
-                    "url": base_url
+                    "web_app": {"url": "https://pixel-stars.vercel.app"}
                 }
             ],
             [
                 {
                     "text": "🎁 Открыть кейсы",
-                    "url": base_url
+                    "web_app": {"url": "https://pixel-stars.vercel.app"}
                 }
             ],
             [
