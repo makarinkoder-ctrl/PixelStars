@@ -120,7 +120,7 @@ class CasesManager {
             <div class="case-card ${caseData.rarity}" data-case-id="${caseData.id}">
                 <div class="case-image">${caseData.image || caseData.emoji}</div>
                 <div class="case-name">${caseData.name}</div>
-                <div class="case-price">${caseData.price} ⭐</div>
+                <div class="case-price">${caseData.cost} ⭐</div>
                 <div class="case-description">${caseData.description}</div>
                 <div class="case-open-btn" data-case-id="${caseData.id}">🎁 ОТКРЫТЬ</div>
             </div>
@@ -367,29 +367,86 @@ class CasesManager {
         document.body.style.overflow = 'auto';
     }
 
-    // Упрощенная анимация для мобильных устройств
+    // УЛУЧШЕННАЯ анимация с эффектами
     startSimpleRouletteAnimation(winningPrize, allPrizes, newBalance) {
-        console.log('🎰 Запуск рулетки для кейса');
+        console.log('🎰 Запуск ПРЕМИУМ рулетки для кейса');
         console.log('🏆 Выигрышный приз:', winningPrize);
         
-        // Создаем рулетку прямо поверх страницы (как в тесте)
-        const rouletteContainer = document.createElement('div');
-        rouletteContainer.id = 'dynamic-roulette';
-        rouletteContainer.style.cssText = `
+        // Создаем полноэкранный контейнер с эффектами
+        const fullscreenOverlay = document.createElement('div');
+        fullscreenOverlay.id = 'fullscreen-roulette-overlay';
+        fullscreenOverlay.style.cssText = `
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 1000px;
-            height: 200px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border: 3px solid #ffd700;
-            border-radius: 15px;
-            overflow: hidden;
-            z-index: 9999;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInOverlay 0.5s ease;
         `;
+        
+        // Создаем рулетку с новым дизайном
+        const rouletteContainer = document.createElement('div');
+        rouletteContainer.id = 'premium-roulette';
+        rouletteContainer.style.cssText = `
+            width: 95vw;
+            max-width: 1200px;
+            height: 220px;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            border: 3px solid transparent;
+            border-image: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700) 1;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 
+                0 0 50px rgba(255, 215, 0, 0.6),
+                0 0 100px rgba(255, 215, 0, 0.3),
+                inset 0 0 50px rgba(255, 215, 0, 0.1);
+            animation: containerPulse 2s infinite ease-in-out;
+        `;
+        
+        // Добавляем CSS анимации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOverlay {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes containerPulse {
+                0%, 100% { 
+                    box-shadow: 
+                        0 0 50px rgba(255, 215, 0, 0.6),
+                        0 0 100px rgba(255, 215, 0, 0.3),
+                        inset 0 0 50px rgba(255, 215, 0, 0.1);
+                }
+                50% { 
+                    box-shadow: 
+                        0 0 70px rgba(255, 215, 0, 0.8),
+                        0 0 120px rgba(255, 215, 0, 0.5),
+                        inset 0 0 70px rgba(255, 215, 0, 0.2);
+                }
+            }
+            @keyframes itemFloat {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-5px); }
+            }
+            @keyframes rarityGlow {
+                0%, 100% { filter: brightness(1) drop-shadow(0 0 10px currentColor); }
+                50% { filter: brightness(1.3) drop-shadow(0 0 20px currentColor); }
+            }
+            @keyframes winnerExplosion {
+                0% { transform: scale(1) rotate(0deg); }
+                25% { transform: scale(1.2) rotate(90deg); }
+                50% { transform: scale(1.4) rotate(180deg); }
+                75% { transform: scale(1.2) rotate(270deg); }
+                100% { transform: scale(1) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
         
         // Создаем контейнер для элементов рулетки
         const rouletteItems = document.createElement('div');
@@ -397,17 +454,17 @@ class CasesManager {
             display: flex;
             align-items: center;
             height: 100%;
-            gap: 10px;
-            padding: 10px;
-            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            gap: 15px;
+            padding: 15px;
+            transition: transform 5s cubic-bezier(0.15, 0.1, 0.25, 1);
         `;
         
         // Создаем массив призов из реальных данных кейса
-        const totalItems = 30;
-        const winPosition = 22; // Выигрышная позиция
+        const totalItems = 35;
+        const winPosition = 28; // Выигрышная позиция ближе к концу
         const prizesList = [];
         
-        console.log('🎁 Призы из кейса для рулетки:', allPrizes);
+        console.log('🎁 Призы из кейса для премиум рулетки:', allPrizes);
         
         for (let i = 0; i < totalItems; i++) {
             if (i === winPosition) {
@@ -427,120 +484,378 @@ class CasesManager {
             }
         }
         
-        // Создаем HTML элементы
+        // Функция получения цвета редкости
+        const getRarityColor = (rarity) => {
+            switch(rarity) {
+                case 'common': return '#95a5a6';
+                case 'rare': return '#3498db';
+                case 'epic': return '#9b59b6';
+                case 'legendary': return '#f39c12';
+                case 'mythic': return '#e74c3c';
+                default: return '#95a5a6';
+            }
+        };
+        
+        // Создаем HTML элементы с улучшенным дизайном
         prizesList.forEach((prize, index) => {
             const item = document.createElement('div');
-            // Убираем выделение выигрышного - все элементы одинаковые
+            const rarityColor = getRarityColor(prize.rarity);
             
             item.style.cssText = `
-                min-width: 100px;
-                width: 100px;
-                height: 160px;
-                background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
+                min-width: 120px;
+                width: 120px;
+                height: 180px;
+                background: linear-gradient(135deg, 
+                    rgba(${hexToRgb(rarityColor)}, 0.3) 0%, 
+                    rgba(${hexToRgb(rarityColor)}, 0.1) 50%, 
+                    rgba(0,0,0,0.8) 100%);
                 color: white;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-radius: 12px;
+                border-radius: 15px;
                 flex-shrink: 0;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: bold;
-                border: 2px solid #444;
+                border: 3px solid ${rarityColor};
                 position: relative;
                 overflow: hidden;
+                animation: itemFloat 3s infinite ease-in-out;
+                animation-delay: ${index * 0.1}s;
+                transition: all 0.3s ease;
             `;
             
+            // Добавляем эффект свечения для редких предметов
+            if (['epic', 'legendary', 'mythic'].includes(prize.rarity)) {
+                item.style.animation += ', rarityGlow 2s infinite ease-in-out';
+            }
+            
             item.innerHTML = `
-                <div style="font-size: 32px; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                <div style="
+                    font-size: 40px; 
+                    margin-bottom: 12px; 
+                    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+                    animation: itemFloat 2s infinite ease-in-out;
+                ">
                     ${prize.emoji || prize.image || '🎁'}
                 </div>
-                <div style="text-align: center; line-height: 1.2; margin-bottom: 4px;">
-                    ${(prize.name || 'Приз').substring(0, 8)}
+                <div style="
+                    text-align: center; 
+                    line-height: 1.3; 
+                    margin-bottom: 8px;
+                    color: ${rarityColor};
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+                    font-weight: 800;
+                ">
+                    ${(prize.name || 'Приз').substring(0, 10)}
                 </div>
-                <div style="color: #ffd700; font-size: 10px;">
-                    ${prize.value || '?'} ⭐
+                <div style="
+                    color: #ffd700; 
+                    font-size: 12px;
+                    background: rgba(255,215,0,0.2);
+                    padding: 4px 8px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                ">
+                    ${prize.value ? prize.value + ' ⭐' : 'ПОДАРОК'}
+                </div>
+                <div style="
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    background: ${rarityColor};
+                    color: white;
+                    padding: 2px 6px;
+                    border-radius: 10px;
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                ">
+                    ${prize.rarity}
                 </div>
             `;
             
             rouletteItems.appendChild(item);
         });
         
+        // Функция конвертации hex в RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? 
+                `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` :
+                '255, 255, 255';
+        }
+        
         rouletteContainer.appendChild(rouletteItems);
         
-        // Добавляем указатель в центре
+        // УЛУЧШЕННЫЙ указатель в центре с эффектами
         const pointer = document.createElement('div');
         pointer.style.cssText = `
             position: absolute;
-            top: -15px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 20px solid #ffd700;
-            z-index: 10;
-            filter: drop-shadow(0 3px 6px rgba(255, 215, 0, 0.6));
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 25px solid #ffd700;
+            z-index: 15;
+            filter: drop-shadow(0 5px 10px rgba(255, 215, 0, 0.8));
+            animation: containerPulse 1s infinite ease-in-out;
         `;
         rouletteContainer.appendChild(pointer);
         
-        // Добавляем кнопку закрытия
+        // Добавляем заголовок
+        const title = document.createElement('div');
+        title.style.cssText = `
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffd700;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            z-index: 15;
+            animation: containerPulse 1.5s infinite ease-in-out;
+        `;
+        title.textContent = '🎰 РОЗЫГРЫШ ПРИЗОВ 🎰';
+        fullscreenOverlay.appendChild(title);
+        
+        // Стильная кнопка закрытия
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = '✕';
+        closeBtn.innerHTML = '✕';
         closeBtn.style.cssText = `
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 68, 68, 0.8);
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 12px 16px;
             border-radius: 50%;
             cursor: pointer;
-            z-index: 10;
-            font-size: 16px;
+            z-index: 20;
+            font-size: 18px;
             font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
         `;
+        closeBtn.onmouseover = () => {
+            closeBtn.style.transform = 'scale(1.1)';
+            closeBtn.style.boxShadow = '0 6px 20px rgba(231, 76, 60, 0.6)';
+        };
+        closeBtn.onmouseout = () => {
+            closeBtn.style.transform = 'scale(1)';
+            closeBtn.style.boxShadow = '0 4px 15px rgba(231, 76, 60, 0.4)';
+        };
         closeBtn.onclick = () => {
-            document.body.removeChild(rouletteContainer);
+            document.body.removeChild(fullscreenOverlay);
             this.showResult(winningPrize, newBalance);
         };
         rouletteContainer.appendChild(closeBtn);
         
+        // Добавляем контейнер в оверлей
+        fullscreenOverlay.appendChild(rouletteContainer);
+        
         // Добавляем на страницу
-        document.body.appendChild(rouletteContainer);
+        document.body.appendChild(fullscreenOverlay);
         
-        console.log('✅ Рулетка создана с', totalItems, 'элементами');
+        console.log('✅ ПРЕМИУМ рулетка создана с', totalItems, 'элементами');
         
-        // Запускаем анимацию
+        // Добавляем звуковые эффекты (визуальные)
+        this.createVisualSoundEffects(fullscreenOverlay);
+        
+        // Запускаем анимацию с задержкой для эффекта
         setTimeout(() => {
             const containerWidth = rouletteContainer.offsetWidth;
-            const itemWidth = 110; // ширина + gap
+            const itemWidth = 135; // ширина + gap
             const centerOffset = containerWidth / 2;
-            const targetX = -(winPosition * itemWidth - centerOffset + 50);
+            const targetX = -(winPosition * itemWidth - centerOffset + 60);
             
-            console.log('🎯 Анимация к позиции:', targetX);
+            console.log('🎯 Запуск ПРЕМИУМ анимации к позиции:', targetX);
             rouletteItems.style.transform = `translateX(${targetX}px)`;
             
-            // Подсвечиваем победителя через 4 секунды
+            // Добавляем эффекты частиц во время движения
+            this.createParticleEffect(rouletteContainer);
+            
+            // Подсвечиваем победителя через 5 секунд
             setTimeout(() => {
                 const winnerItem = rouletteItems.children[winPosition];
                 if (winnerItem) {
-                    winnerItem.style.boxShadow = '0 0 30px #ffd700';
-                    winnerItem.style.transform = 'scale(1.05)';
-                    winnerItem.style.zIndex = '5';
+                    // МОЩНЫЙ эффект победителя
+                    winnerItem.style.animation = 'winnerExplosion 1s ease-out';
+                    winnerItem.style.boxShadow = `
+                        0 0 50px ${getRarityColor(winningPrize.rarity)},
+                        0 0 100px ${getRarityColor(winningPrize.rarity)},
+                        inset 0 0 30px rgba(255,255,255,0.3)
+                    `;
+                    winnerItem.style.transform = 'scale(1.2)';
+                    winnerItem.style.zIndex = '10';
+                    
+                    // Создаем фейерверк эффект
+                    this.createFireworkEffect(winnerItem, winningPrize.rarity);
                 }
                 
-                // Автоматически закрываем через 3 секунды после подсветки
+                // Показываем результат через 4 секунды после подсветки
                 setTimeout(() => {
-                    if (document.body.contains(rouletteContainer)) {
-                        document.body.removeChild(rouletteContainer);
-                        this.showResult(winningPrize, newBalance);
+                    if (document.body.contains(fullscreenOverlay)) {
+                        fullscreenOverlay.style.animation = 'fadeInOverlay 0.5s ease reverse';
+                        setTimeout(() => {
+                            if (document.body.contains(fullscreenOverlay)) {
+                                document.body.removeChild(fullscreenOverlay);
+                            }
+                            this.showResult(winningPrize, newBalance);
+                        }, 500);
                     }
-                }, 3000);
-            }, 4000);
-        }, 500);
+                }, 4000);
+            }, 5000);
+        }, 1000);
+        
+        // Функция получения цвета редкости (локальная копия)
+        function getRarityColor(rarity) {
+            switch(rarity) {
+                case 'common': return '#95a5a6';
+                case 'rare': return '#3498db';
+                case 'epic': return '#9b59b6';
+                case 'legendary': return '#f39c12';
+                case 'mythic': return '#e74c3c';
+                default: return '#95a5a6';
+            }
+        }
+    }
+
+    // Создание визуальных звуковых эффектов
+    createVisualSoundEffects(container) {
+        const soundIndicator = document.createElement('div');
+        soundIndicator.style.cssText = `
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffd700;
+            font-size: 16px;
+            z-index: 15;
+            animation: containerPulse 0.5s infinite ease-in-out;
+        `;
+        soundIndicator.textContent = '🔊 Рулетка крутится...';
+        container.appendChild(soundIndicator);
+        
+        // Меняем текст через 3 секунды
+        setTimeout(() => {
+            soundIndicator.textContent = '🎵 Замедляется...';
+        }, 3000);
+        
+        setTimeout(() => {
+            soundIndicator.textContent = '🎊 Результат!';
+        }, 5000);
+    }
+
+    // Создание эффекта частиц
+    createParticleEffect(container) {
+        for (let i = 0; i < 20; i++) {
+            setTimeout(() => {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 4px;
+                    height: 4px;
+                    background: #ffd700;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 5;
+                    animation: particleFall 2s linear forwards;
+                    left: ${Math.random() * 100}%;
+                    top: -10px;
+                `;
+                
+                // Добавляем CSS для анимации частиц
+                if (!document.querySelector('#particle-styles')) {
+                    const particleStyle = document.createElement('style');
+                    particleStyle.id = 'particle-styles';
+                    particleStyle.textContent = `
+                        @keyframes particleFall {
+                            to {
+                                transform: translateY(250px) rotate(360deg);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(particleStyle);
+                }
+                
+                container.appendChild(particle);
+                
+                // Удаляем частицу через 2 секунды
+                setTimeout(() => {
+                    if (container.contains(particle)) {
+                        container.removeChild(particle);
+                    }
+                }, 2000);
+            }, i * 100);
+        }
+    }
+
+    // Создание эффекта фейерверка
+    createFireworkEffect(element, rarity) {
+        const colors = {
+            'common': '#95a5a6',
+            'rare': '#3498db', 
+            'epic': '#9b59b6',
+            'legendary': '#f39c12',
+            'mythic': '#e74c3c'
+        };
+        
+        const color = colors[rarity] || '#ffd700';
+        
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+                const firework = document.createElement('div');
+                const angle = (i * 24) * Math.PI / 180; // 15 частиц по кругу
+                const distance = 50 + Math.random() * 50;
+                
+                firework.style.cssText = `
+                    position: absolute;
+                    width: 6px;
+                    height: 6px;
+                    background: ${color};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 15;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: fireworkExplode 1s ease-out forwards;
+                `;
+                
+                // Добавляем CSS для фейерверка
+                if (!document.querySelector('#firework-styles')) {
+                    const fireworkStyle = document.createElement('style');
+                    fireworkStyle.id = 'firework-styles';
+                    fireworkStyle.textContent = `
+                        @keyframes fireworkExplode {
+                            to {
+                                transform: translate(
+                                    calc(-50% + ${Math.cos(angle) * distance}px), 
+                                    calc(-50% + ${Math.sin(angle) * distance}px)
+                                ) scale(0);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(fireworkStyle);
+                }
+                
+                element.appendChild(firework);
+                
+                setTimeout(() => {
+                    if (element.contains(firework)) {
+                        element.removeChild(firework);
+                    }
+                }, 1000);
+            }, i * 50);
+        }
     }
 
     // Добавить указатель рулетки

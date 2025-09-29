@@ -2,8 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/bot-working.js",
-      "use": "@vercel/node"
+      "src": "api/bot.py",
+      "use": "@vercel/python"
     },
     {
       "src": "web/**",
@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "src/bot-working.js"
+      "dest": "api/bot.py"
     },
     {
       "src": "/(.*)",
@@ -21,6 +21,6 @@
     }
   ],
   "env": {
-    "BOT_TOKEN": "@bot_token"
+    "BOT_TOKEN": "8475765506:AAFENFMSv1Zp9QYMgVnmFonk8I2RJTDQErE"
   }
 }

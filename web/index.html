@@ -5,7 +5,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixelstars Casino ⭐</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="stylesheet" href="src/styles/main.css?v=3.0">
+    
+    <style>
+        /* Анимации для звезды */
+        @keyframes star-fly {
+            0% {
+                transform: scale(1) rotate(0deg);
+                filter: drop-shadow(0 0 15px #fbbf24);
+            }
+            50% {
+                transform: scale(1.15) rotate(180deg);
+                filter: drop-shadow(0 0 20px #f59e0b);
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                filter: drop-shadow(0 0 15px #fbbf24);
+            }
+        }
+        
+        @keyframes star-explosion {
+            0% {
+                transform: scale(1) rotate(0deg);
+                filter: drop-shadow(0 0 15px #fbbf24);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.4) rotate(180deg);
+                filter: drop-shadow(0 0 25px #ef4444);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0.5) rotate(360deg);
+                filter: drop-shadow(0 0 35px #dc2626);
+                opacity: 0.3;
+            }
+        }
+        
+        @keyframes star-sparkle {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 15px #fbbf24);
+            }
+            50% {
+                transform: scale(1.08);
+                filter: drop-shadow(0 0 20px #f59e0b);
+            }
+        }
+        
+        /* Эффект взрыва */
+        @keyframes explosion-particles {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+        
+        .crash-star.flying {
+            animation: star-fly 2s ease-in-out infinite;
+        }
+        
+        .crash-star.crashed {
+            animation: star-explosion 0.8s ease-out;
+        }
+        
+        .crash-star.waiting {
+            animation: star-sparkle 3s ease-in-out infinite;
+        }
+        
+        /* Кнопки краш-игры */
+        .crash-game-btn {
+            width: 100%;
+            height: 64px;
+            padding: 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .crash-bet-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
+        }
+        
+        .crash-bet-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(245, 158, 11, 0.6);
+        }
+        
+        .crash-bet-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .crash-withdraw-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+        }
+        
+        .crash-withdraw-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.6);
+        }
+        
+        .crash-withdraw-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .crash-game-btn:disabled {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: rgba(255, 255, 255, 0.4) !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        
+        /* Стили для истории крашей */
+        .crash-history-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            height: 40px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .crash-history-item.low {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .crash-history-item.medium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .crash-history-item.high {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .crash-history-item.ultra {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Частицы взрыва */
+        .explosion-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fbbf24;
+            border-radius: 50%;
+            animation: explosion-particles 1s ease-out forwards;
+        }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -44,22 +219,22 @@
 
         <!-- Main Navigation -->
         <nav class="main-nav">
-            <button class="nav-item active" data-tab="home">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Главная</span>
-            </button>
-            <button class="nav-item" data-tab="cases">
-                <span class="nav-icon">🎁</span>
-                <span class="nav-label">Кейсы</span>
-            </button>
-            <button class="nav-item" data-tab="rocket">
-                <span class="nav-icon">🚀</span>
-                <span class="nav-label">Ракетка</span>
-            </button>
-            <button class="nav-item" data-tab="profile">
-                <span class="nav-icon">👤</span>
-                <span class="nav-label">Профиль</span>
-            </button>
+                        <div class="nav-item active" onclick="switchToTab('home')">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-text">Главная</div>
+            </div>
+            <div class="nav-item" onclick="switchToTab('cases')">
+                <div class="nav-icon">🎁</div>
+                <div class="nav-text">Кейсы</div>
+            </div>
+            <div class="nav-item" onclick="switchToTab('rocket')">
+                <div class="nav-icon">🚀</div>
+                <div class="nav-text">Ракета</div>
+            </div>
+            <div class="nav-item" onclick="switchToTab('profile')">
+                <div class="nav-icon">👤</div>
+                <div class="nav-text">Профиль</div>
+            </div>
         </nav>
 
         <!-- Content Sections -->
@@ -124,19 +299,207 @@
                 
                 <div class="cases-grid" id="cases-grid">
                     <!-- Кейсы будут загружены динамически -->
+                    <div class="loading-cases">
+                        <div style="text-align: center; padding: 20px; color: #888;">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
+                            <div>Загрузка кейсов...</div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- Rocket Tab -->
             <section id="rocket" class="tab-content">
-                <div class="rocket-game-container">
-                    <div class="game-header">
-                        <h2>🚀 Игра "Ракетка"</h2>
-                        <p>Поймай момент и умножь свои звезды!</p>
-                    </div>
+                <div class="crash-container" style="
+                    min-height: 90vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+                ">
                     
-                    <div class="rocket-game" id="rocketGame">
-                        <!-- Игра ракетка будет здесь -->
+                    <!-- Главный экран краш-игры -->
+                    <div class="crash-main" style="
+                        background: linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+                        border-radius: 24px;
+                        padding: 60px;
+                        width: 100%;
+                        max-width: 580px;
+                        min-height: 700px;
+                        text-align: center;
+                        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                        position: relative;
+                        overflow: hidden;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                    ">
+                        <!-- Верхняя зона с коэффициентом -->
+                        <div class="multiplier-section" style="
+                            height: 120px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            margin-bottom: 30px;
+                        ">
+                            <div class="crash-multiplier" id="crashMultiplier" style="
+                                font-size: 5.5rem;
+                                font-weight: 900;
+                                background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+                                -webkit-background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                                background-clip: text;
+                                filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.4));
+                                letter-spacing: -2px;
+                                line-height: 0.9;
+                                position: relative;
+                            ">1.00x</div>
+                        </div>
+
+                        <!-- Основная игровая зона -->
+                        <div class="crash-display" style="margin-bottom: 50px; position: relative;">
+                            <div class="crash-status" id="crashStatus" style="
+                                font-size: 1.2rem;
+                                color: rgba(255, 255, 255, 0.8);
+                                margin-bottom: 25px;
+                                font-weight: 500;
+                                position: relative;
+                                z-index: 2;
+                            ">Ожидание раунда...</div>
+                        </div>
+
+                        <!-- Нижняя зона со звездой -->
+                        <div class="star-section" style="
+                            height: 80px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-bottom: 30px;
+                        ">
+                            <div class="crash-star-container" id="crashStarContainer" style="
+                                font-size: 2rem;
+                                position: relative;
+                            ">
+                                <div class="crash-star" id="crashStar" style="
+                                    display: inline-block;
+                                    filter: drop-shadow(0 0 15px #fbbf24);
+                                    transition: all 0.3s ease;
+                                ">⭐</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Панель управления -->
+                        <div class="crash-controls" style="
+                            display: flex;
+                            flex-direction: column;
+                            gap: 30px;
+                        ">
+                            <div class="control-group" style="
+                                display: flex;
+                                flex-direction: column;
+                                gap: 12px;
+                            ">
+                                <label style="
+                                    color: rgba(255, 255, 255, 0.9);
+                                    font-weight: 600;
+                                    text-transform: uppercase;
+                                    letter-spacing: 1px;
+                                    font-size: 0.85rem;
+                                ">Ставка</label>
+                                <input type="number" id="crashBetAmount" value="100" min="50" max="10000" step="50" style="
+                                    padding: 18px 24px;
+                                    background: rgba(0, 0, 0, 0.3);
+                                    border: 2px solid rgba(251, 191, 36, 0.2);
+                                    border-radius: 16px;
+                                    color: white;
+                                    font-size: 1.3rem;
+                                    text-align: center;
+                                    font-weight: 600;
+                                    backdrop-filter: blur(10px);
+                                " class="bet-input">
+                            </div>
+
+                            
+                            <div class="control-group" style="
+                                display: flex;
+                                flex-direction: column;
+                                gap: 12px;
+                            ">
+                                <label class="checkbox-label" style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 12px;
+                                    cursor: pointer;
+                                    justify-content: center;
+                                    color: rgba(255, 255, 255, 0.9);
+                                    font-weight: 600;
+                                    text-transform: uppercase;
+                                    letter-spacing: 1px;
+                                    font-size: 0.85rem;
+                                ">
+                                    <input type="checkbox" id="autoWithdrawEnabled" checked style="
+                                        width: 20px;
+                                        height: 20px;
+                                        accent-color: #fbbf24;
+                                        border-radius: 4px;
+                                    "> 
+                                    Автовывод на
+                                </label>
+                                <input type="number" id="autoWithdraw" value="2.0" min="1.1" max="100" step="0.1" style="
+                                    padding: 18px 24px;
+                                    background: rgba(0, 0, 0, 0.3);
+                                    border: 2px solid rgba(251, 191, 36, 0.2);
+                                    border-radius: 16px;
+                                    color: white;
+                                    font-size: 1.3rem;
+                                    text-align: center;
+                                    font-weight: 600;
+                                    backdrop-filter: blur(10px);
+                                " class="auto-input">
+                            </div>
+                            
+                            <div class="control-buttons" style="
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 20px;
+                                margin-top: 15px;
+                            ">
+                                <button id="crashBetBtn" class="crash-game-btn crash-bet-btn">
+                                    Поставить
+                                </button>
+                                <button id="crashWithdrawBtn" class="crash-game-btn crash-withdraw-btn">
+                                    Забрать
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- История крашей -->
+                        <div class="crash-history" style="
+                            margin-top: 40px;
+                            padding: 25px;
+                            background: rgba(0, 0, 0, 0.2);
+                            border-radius: 20px;
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                        ">
+                            <h3 style="
+                                color: rgba(255, 255, 255, 0.9);
+                                font-size: 1.1rem;
+                                font-weight: 600;
+                                margin: 0 0 20px 0;
+                                text-transform: uppercase;
+                                letter-spacing: 1px;
+                            ">📊 Последние краши</h3>
+                            <div id="crashHistoryList" style="
+                                display: flex;
+                                gap: 10px;
+                                justify-content: center;
+                                flex-wrap: wrap;
+                            ">
+                                <!-- История будет добавляться через JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -185,13 +548,106 @@
                         </div>
                     </div>
 
+                    <!-- Информация о боте -->
+                    <div class="bot-section" style="
+                        margin: 30px 0;
+                        padding: 25px;
+                        background: linear-gradient(135deg, rgba(82, 136, 193, 0.1) 0%, rgba(82, 136, 193, 0.05) 100%);
+                        border-radius: 20px;
+                        border: 1px solid rgba(82, 136, 193, 0.2);
+                    ">
+                        <h3 style="
+                            color: #5288c1;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            margin: 0 0 20px 0;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        ">
+                            🤖 Telegram Bot
+                        </h3>
+                        
+                        <div class="bot-info" style="
+                            display: flex;
+                            flex-direction: column;
+                            gap: 15px;
+                        ">
+                            <div class="bot-status" id="botStatus" style="
+                                padding: 15px;
+                                background: rgba(0, 0, 0, 0.2);
+                                border-radius: 12px;
+                                color: rgba(255, 255, 255, 0.8);
+                                font-size: 0.9rem;
+                            ">
+                                🔄 Проверка соединения с ботом...
+                            </div>
+                            
+                            <div class="bot-actions" style="
+                                display: flex;
+                                gap: 10px;
+                                flex-wrap: wrap;
+                            ">
+                                <button onclick="testBotConnection()" style="
+                                    padding: 12px 20px;
+                                    background: linear-gradient(135deg, #5288c1 0%, #4a7ba7 100%);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 12px;
+                                    font-size: 0.9rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                    🔍 Тест соединения
+                                </button>
+                                
+                                <button onclick="syncWithBot()" style="
+                                    padding: 12px 20px;
+                                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 12px;
+                                    font-size: 0.9rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                    🔄 Синхронизировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Инвентарь подарков -->
                     <div class="inventory-section">
-                        <h3>Мои подарки 🎁</h3>
-                        <div class="inventory-grid" id="inventory-grid">
-                            <div class="inventory-empty">
-                                <span class="empty-icon">📦</span>
-                                <p>Подарки появятся здесь после открытия кейсов</p>
+                        <div class="inventory-header-profile">
+                            <h3>🎒 Мой инвентарь</h3>
+                            <div class="inventory-stats-profile">
+                                <div class="inventory-stat-profile">
+                                    <span class="stat-label">Предметов:</span>
+                                    <span class="stat-value" id="totalItems">0</span>
+                                </div>
+                                <div class="inventory-stat-profile">
+                                    <span class="stat-label">Стоимость:</span>
+                                    <span class="stat-value" id="totalValue">0⭐</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="inventory-actions-profile">
+                            <button class="action-btn-small" onclick="refreshInventory()">
+                                � Обновить
+                            </button>
+                            <button class="action-btn-small" onclick="sellAllCommon()">
+                                💰 Продать обычные
+                            </button>
+                        </div>
+                        
+                        <div class="inventory-grid" id="inventoryGrid">
+                            <div class="inventory-loading">
+                                <div class="loading-spinner"></div>
+                                <p>Загрузка инвентаря...</p>
                             </div>
                         </div>
                     </div>
@@ -338,8 +794,1250 @@
         </div>
     </div>
 
-    <script src="src/scripts/cases.js?v=135"></script>
-    <script src="src/main.js?v=135" type="module"></script>
+    <script src="src/main.js?v=138" type="module"></script>
+    <script src="src/games/clean-crash.js?v=18.0"></script>
+    <script>
+        // ===== НАВИГАЦИЯ МЕЖДУ ВКЛАДКАМИ =====
+        function switchToTab(tabName) {
+            console.log('Переключение на вкладку:', tabName);
+            
+            // Убираем активный класс со всех навигационных элементов
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Скрываем все секции
+            document.querySelectorAll('.tab-content').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Показываем нужную секцию
+            const targetSection = document.getElementById(tabName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                console.log('Секция показана:', tabName);
+            } else {
+                console.error('Секция не найдена:', tabName);
+            }
+            
+            // Активируем соответствующую навигационную кнопку
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabOrder = ['home', 'cases', 'rocket', 'profile'];
+            const tabIndex = tabOrder.indexOf(tabName);
+            if (tabIndex >= 0 && navItems[tabIndex]) {
+                navItems[tabIndex].classList.add('active');
+            }
+            
+            // Загружаем контент для вкладок
+            if (tabName === 'profile' && typeof loadInventory === 'function') {
+                setTimeout(() => loadInventory(), 100);
+            } else if (tabName === 'rocket') {
+                // Инициализируем ракету если еще не было
+                if (!window.rocketInitialized) {
+                    setTimeout(() => initRocketGame(), 100);
+                    window.rocketInitialized = true;
+                }
+            }
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен, инициализируем навигацию');
+            switchToTab('home');
+            initRocketGame();
+        });
+        
+        // ===== ROCKET GAME FUNCTIONS =====
+        let rocketGameState = {
+            phase: 'waiting',
+            multiplier: 1.0,
+            playerBet: null,
+            history: []
+        };
+        
+        // Старые функции убраны - теперь краш с нуля
+        function initRocketGame() { console.log('🗑️ Старый краш отключен'); }
+        function loadRocketHistory() { return; }
+        function updateHistoryDisplay() { return; }
+        function startRocketPolling() { return; }
+        
+        function updateRocketGameDisplay(data) { return; }
+        
+        function updateBettingButtons(data) { return; }
+        
+        // Сделать ставку
+        function placeBet() { console.log('placeBet disabled'); }
+        
+        // Забрать ставку
+        function withdrawBet() { console.log('withdrawBet disabled'); }
+        
+        // Глобальные данные кейсов для надежной работы
+        window.casesData = [
+            {
+                id: 'starter_box',
+                name: '🎁 Стартовый бокс',
+                cost: 50,
+                image: '🎁',
+                emoji: '🎁',
+                rarity: 'common',
+                description: 'Идеальный старт для новичков!'
+            },
+            {
+                id: 'premium_case',
+                name: '🌟 Премиум кейс',
+                cost: 120,
+                image: '🌟',
+                emoji: '🌟',
+                rarity: 'rare',
+                description: 'Больше звезд и эксклюзивные подарки!'
+            },
+            {
+                id: 'golden_box',
+                name: '💎 Золотой бокс',
+                cost: 250,
+                image: '💎',
+                emoji: '💎',
+                rarity: 'epic',
+                description: 'Драгоценности и крупные призы!'
+            },
+            {
+                id: 'royal_chest',
+                name: '� Королевский сундук',
+                cost: 500,
+                image: '👑',
+                emoji: '👑',
+                rarity: 'legendary',
+                description: 'Легендарные награды!'
+            },
+            {
+                id: 'cosmic_vault',
+                name: '� Космическое хранилище',
+                cost: 1000,
+                image: '🚀',
+                emoji: '🚀',
+                rarity: 'mythic',
+                description: 'Эксклюзивные космические призы!'
+            }
+        ];
+        
+        // Простая и надежная загрузка кейсов
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Инициализируем кейсы');
+            
+            // Загружаем сразу
+            setTimeout(function() {
+                loadCasesInstant();
+            }, 500);
+        });
+        
+        // Мгновенная загрузка кейсов
+        function loadCasesInstant() {
+            console.log('⚡ Загружаем кейсы мгновенно');
+            
+            const casesGrid = document.getElementById('cases-grid');
+            if (!casesGrid) {
+                console.error('❌ cases-grid не найден');
+                return;
+            }
+            
+            // Отрисовываем кейсы
+            casesGrid.innerHTML = window.casesData.map(caseData => `
+                <div class="case-card ${caseData.rarity}" data-case-id="${caseData.id}" onclick="showCasePreview('${caseData.id}')">
+                    <div class="case-header">
+                        <div class="case-image">${caseData.emoji}</div>
+                        <div class="case-rarity-badge">${getRarityName(caseData.rarity)}</div>
+                    </div>
+                    <div class="case-body">
+                        <h3 class="case-name">${caseData.name}</h3>
+                        <p class="case-description">${caseData.description}</p>
+                        <div class="case-price">${caseData.cost} ⭐</div>
+                        <div class="case-click-hint">�️ Нажми чтобы посмотреть</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            console.log('✅ Кейсы загружены!');
+            
+            // Добавляем анимацию появления
+            const cards = casesGrid.querySelectorAll('.case-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+        
+        // Получить название редкости
+        function getRarityName(rarity) {
+            const names = {
+                'common': 'Обычный',
+                'rare': 'Редкий',
+                'epic': 'Эпический',
+                'legendary': 'Легендарный',
+                'mythic': 'Мифический'
+            };
+            return names[rarity] || 'Обычный';
+        }
+        
+        // Данные призов для каждого кейса
+        window.casesData.forEach(caseData => {
+            const prizes = {
+                'starter_box': [
+                    { name: '25 звезд', emoji: '⭐', rarity: 'common', chance: '35%' },
+                    { name: '50 звезд', emoji: '💫', rarity: 'common', chance: '25%' },
+                    { name: 'Тюльпан', emoji: '🌷', rarity: 'common', chance: '20%' },
+                    { name: 'Роза', emoji: '🌹', rarity: 'common', chance: '15%' },
+                    { name: 'Ромашка', emoji: '🌼', rarity: 'rare', chance: '5%' }
+                ],
+                'premium_case': [
+                    { name: '75 звезд', emoji: '⭐', rarity: 'rare', chance: '30%' },
+                    { name: '150 звезд', emoji: '💫', rarity: 'rare', chance: '20%' },
+                    { name: 'Торт', emoji: '🎂', rarity: 'rare', chance: '20%' },
+                    { name: 'Шары', emoji: '🎈', rarity: 'rare', chance: '15%' },
+                    { name: 'Кекс', emoji: '🧁', rarity: 'epic', chance: '10%' },
+                    { name: 'Конфеты', emoji: '🍬', rarity: 'epic', chance: '5%' }
+                ],
+                'golden_box': [
+                    { name: '200 звезд', emoji: '⭐', rarity: 'epic', chance: '25%' },
+                    { name: '350 звезд', emoji: '🌟', rarity: 'epic', chance: '15%' },
+                    { name: 'Мишка', emoji: '🧸', rarity: 'epic', chance: '20%' },
+                    { name: 'Изумруд', emoji: '💚', rarity: 'epic', chance: '15%' },
+                    { name: 'Сапфир', emoji: '💙', rarity: 'legendary', chance: '12%' },
+                    { name: 'Алмаз', emoji: '💎', rarity: 'legendary', chance: '8%' },
+                    { name: 'Рубин', emoji: '❤️', rarity: 'legendary', chance: '5%' }
+                ],
+                'royal_chest': [
+                    { name: '500 звезд', emoji: '⭐', rarity: 'legendary', chance: '20%' },
+                    { name: '1000 звезд', emoji: '🌟', rarity: 'legendary', chance: '10%' },
+                    { name: 'Корона', emoji: '👑', rarity: 'legendary', chance: '15%' },
+                    { name: 'Скипетр', emoji: '🪄', rarity: 'legendary', chance: '12%' },
+                    { name: 'Трон', emoji: '🪑', rarity: 'legendary', chance: '10%' },
+                    { name: 'Единорог', emoji: '🦄', rarity: 'mythic', chance: '8%' },
+                    { name: 'МЕГА ДЖЕКПОТ', emoji: '🎰', rarity: 'mythic', chance: '3%' },
+                    { name: 'Дракон', emoji: '🐉', rarity: 'mythic', chance: '2%' }
+                ],
+                'cosmic_vault': [
+                    { name: '1500 звезд', emoji: '⭐', rarity: 'mythic', chance: '15%' },
+                    { name: '3000 звезд', emoji: '🌟', rarity: 'mythic', chance: '8%' },
+                    { name: 'Космокорабль', emoji: '🚀', rarity: 'mythic', chance: '12%' },
+                    { name: 'Планета', emoji: '🪐', rarity: 'mythic', chance: '10%' },
+                    { name: 'Галактика', emoji: '🌌', rarity: 'mythic', chance: '8%' },
+                    { name: 'Черная дыра', emoji: '🕳️', rarity: 'mythic', chance: '6%' },
+                    { name: 'Инопланетянин', emoji: '👽', rarity: 'mythic', chance: '12%' },
+                    { name: 'НЛО', emoji: '🛸', rarity: 'mythic', chance: '12%' },
+                    { name: 'КОСМО ДЖЕКПОТ', emoji: '💥', rarity: 'mythic', chance: '2%' }
+                ]
+            };
+            caseData.prizes = prizes[caseData.id] || [];
+        });
+        
+        // Показать превью кейса (при клике на карточку)
+        function showCasePreview(caseId) {
+            const selectedCase = window.casesData.find(c => c.id === caseId);
+            if (!selectedCase) return;
+            
+            const balance = window.getBalance ? window.getBalance() : 0;
+            
+            const modal = document.createElement('div');
+            modal.className = 'case-preview-modal-new';
+            modal.innerHTML = `
+                <div class="modal-backdrop" onclick="closeCasePreviewNew()"></div>
+                <div class="preview-content-new">
+                    <div class="preview-header-new ${selectedCase.rarity}">
+                        <button class="close-btn-new" onclick="closeCasePreviewNew()">✕</button>
+                        <div class="case-icon-preview">${selectedCase.emoji}</div>
+                        <h2>${selectedCase.name}</h2>
+                        <div class="rarity-badge-preview">${getRarityName(selectedCase.rarity)}</div>
+                    </div>
+                    
+                    <div class="preview-body-new">
+                        <div class="case-info-new">
+                            <p>${selectedCase.description}</p>
+                            <div class="price-info">
+                                <span class="price-label">Стоимость:</span>
+                                <span class="price-value">${selectedCase.cost} ⭐</span>
+                            </div>
+                            <div class="balance-info">
+                                <span class="balance-label">Ваш баланс:</span>
+                                <span class="balance-value ${balance >= selectedCase.cost ? 'enough' : 'not-enough'}">${balance} ⭐</span>
+                            </div>
+                        </div>
+                        
+                        <div class="prizes-section-new">
+                            <h3>🎁 Возможные призы:</h3>
+                            <div class="prizes-list-new">
+                                ${selectedCase.prizes.map(prize => `
+                                    <div class="prize-item-new ${prize.rarity}">
+                                        <div class="prize-emoji-new">${prize.emoji}</div>
+                                        <div class="prize-details">
+                                            <div class="prize-name-new">${prize.name}</div>
+                                            <div class="prize-chance-new">${prize.chance}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="preview-actions-new">
+                            ${balance >= selectedCase.cost ? 
+                                `<button class="open-btn-new ${selectedCase.rarity}" onclick="openCaseFromPreviewNew('${selectedCase.id}')">
+                                    🎰 ОТКРЫТЬ КЕЙС - ${selectedCase.cost} ⭐
+                                </button>` :
+                                `<button class="open-btn-new disabled" disabled>
+                                    ❌ НЕДОСТАТОЧНО ЗВЕЗД
+                                </button>`
+                            }
+                            <button class="cancel-btn-new" onclick="closeCasePreviewNew()">
+                                Закрыть
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+        
+        // Открыть кейс из превью
+        async function openCaseFromPreviewNew(caseId) {
+            const selectedCase = window.casesData.find(c => c.id === caseId);
+            
+            // Получаем Telegram ID пользователя
+            const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            const telegramId = telegramUser?.id || window.pixelstarsApp?.demoUser?.telegram_id;
+            
+            if (!telegramId) {
+                showQuickError('Ошибка: не удалось определить пользователя');
+                return;
+            }
+            
+            try {
+                // Закрываем превью
+                closeCasePreviewNew();
+                
+                // Отправляем запрос на сервер
+                const response = await fetch('/api/open-case', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: telegramId.toString(),
+                        caseId: caseId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Обновляем баланс пользователя
+                    if (window.pixelstarsApp && window.pixelstarsApp.updateUserBalance) {
+                        await window.pixelstarsApp.updateUserBalance(data.newBalance);
+                    }
+                    
+                    // Показываем результат с анимацией
+                    showInstantOpening(selectedCase, data.result);
+                    
+                    // Если повысился уровень
+                    if (data.level_up) {
+                        setTimeout(() => {
+                            showQuickError(`🎉 Поздравляем! Вы достигли уровня ${data.new_level}!`);
+                        }, 2000);
+                    }
+                } else {
+                    showQuickError(data.error || 'Ошибка при открытии кейса');
+                }
+            } catch (error) {
+                console.error('Ошибка открытия кейса:', error);
+                showQuickError('Ошибка соединения с сервером');
+            }
+        }
+        
+        // Закрыть новое превью
+        function closeCasePreviewNew() {
+            const modal = document.querySelector('.case-preview-modal-new');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+        
+        // Быстрая ошибка (простой алерт)
+        function showQuickError(message) {
+            // Создаем красивое уведомление вместо alert
+            const notification = document.createElement('div');
+            notification.className = 'error-notification';
+            notification.innerHTML = `
+                <div class="error-content">
+                    <div class="error-icon">❌</div>
+                    <div class="error-text">${message.replace(/\n/g, '<br>')}</div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Анимация появления
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            // Автоматическое исчезновение
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Мгновенное открытие
+        function showInstantOpening(caseData, serverPrize = null) {
+            const wonPrize = serverPrize || getRandomPrize(caseData);
+            
+            // Показываем результат сразу с эффектом
+            showInstantResult(caseData, wonPrize);
+        }
+        
+        // Мгновенный результат
+        function showInstantResult(caseData, wonPrize) {
+            const modal = document.createElement('div');
+            modal.className = 'instant-result-modal';
+            modal.innerHTML = `
+                <div class="instant-backdrop" onclick="closeInstantResult()"></div>
+                <div class="instant-content ${wonPrize.rarity}">
+                    <div class="instant-header">
+                        <div class="case-opened">Открыли: ${caseData.emoji}</div>
+                        <div class="prize-won">🎉 ВЫИГРАЛИ! 🎉</div>
+                    </div>
+                    <div class="instant-prize">
+                        <div class="prize-icon-big">${wonPrize.emoji}</div>
+                        <div class="prize-name-big">${wonPrize.name}</div>
+                        <div class="prize-rarity-big">${getRarityName(wonPrize.rarity)}</div>
+                    </div>
+                    <div class="instant-actions">
+                        <button class="repeat-btn" onclick="closeInstantResult(); openCaseFromPreviewNew('${caseData.id}')">
+                            🔄 ПОВТОРИТЬ
+                        </button>
+                        <button class="continue-btn" onclick="closeInstantResult()">
+                            ✅ ПРОДОЛЖИТЬ
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+            
+            // Автозакрытие через 5 секунд
+            setTimeout(() => {
+                if (document.querySelector('.instant-result-modal')) {
+                    closeInstantResult();
+                }
+            }, 5000);
+        }
+        
+        // Закрытие мгновенного результата
+        function closeInstantResult() {
+            const modal = document.querySelector('.instant-result-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+        
+        // Показать компактное превью при ошибке
+        function showCompactPreview(caseData, errorMessage) {
+            const modal = document.createElement('div');
+            modal.className = 'compact-preview-modal';
+            modal.innerHTML = `
+                <div class="modal-backdrop" onclick="closeCompactPreview()"></div>
+                <div class="compact-content">
+                    <div class="compact-header ${caseData.rarity}">
+                        <div class="case-icon">${caseData.emoji}</div>
+                        <h3>${caseData.name}</h3>
+                        <div class="price">${caseData.cost} ⭐</div>
+                    </div>
+                    <div class="compact-body">
+                        <div class="error-message">❌ ${errorMessage}</div>
+                        <div class="quick-prizes">
+                            ${caseData.prizes.slice(0, 4).map(prize => `
+                                <div class="mini-prize ${prize.rarity}">
+                                    <span>${prize.emoji}</span>
+                                    <small>${prize.chance}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="close-compact-btn" onclick="closeCompactPreview()">
+                            Понятно
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+        
+        // Показать быстрое открытие
+        function showQuickOpeningFlow(caseData) {
+            const wonPrize = getRandomPrize(caseData);
+            
+            // Сначала показываем что кейс выбран
+            const modal = document.createElement('div');
+            modal.className = 'quick-opening-modal';
+            modal.innerHTML = `
+                <div class="opening-backdrop"></div>
+                <div class="quick-opening-content">
+                    <div class="opening-case-display ${caseData.rarity}">
+                        <div class="case-icon-big">${caseData.emoji}</div>
+                        <div class="opening-text">Открываем...</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+            
+            // Через короткое время показываем результат
+            setTimeout(() => {
+                modal.remove();
+                showCompactResult(caseData, wonPrize);
+            }, 1500);
+        }
+        
+        // Создать модальное окно превью
+        function createCasePreviewModal(caseData) {
+            const modal = document.createElement('div');
+            modal.className = 'case-preview-modal';
+            modal.innerHTML = `
+                <div class="modal-backdrop" onclick="closeCasePreview()"></div>
+                <div class="modal-content case-preview-content">
+                    <div class="preview-header">
+                        <div class="case-preview-icon ${caseData.rarity}">${caseData.emoji}</div>
+                        <h2 class="case-preview-title">${caseData.name}</h2>
+                        <div class="case-preview-rarity">${getRarityName(caseData.rarity)}</div>
+                        <button class="close-btn" onclick="closeCasePreview()">✕</button>
+                    </div>
+                    
+                    <div class="preview-body">
+                        <div class="case-info">
+                            <p class="case-preview-description">${caseData.description}</p>
+                            <div class="case-preview-price">
+                                <span class="price-label">Стоимость:</span>
+                                <span class="price-value">${caseData.cost} ⭐</span>
+                            </div>
+                        </div>
+                        
+                        <div class="prizes-section">
+                            <h3 class="prizes-title">🎁 Возможные призы:</h3>
+                            <div class="prizes-grid">
+                                ${caseData.prizes.map(prize => `
+                                    <div class="prize-item ${prize.rarity}">
+                                        <div class="prize-emoji">${prize.emoji}</div>
+                                        <div class="prize-name">${prize.name}</div>
+                                        <div class="prize-chance">${prize.chance}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="preview-actions">
+                            <button class="open-case-btn ${caseData.rarity}" onclick="openCaseFromPreview('${caseData.id}')">
+                                🎰 ОТКРЫТЬ КЕЙС - ${caseData.cost} ⭐
+                            </button>
+                            <button class="cancel-btn" onclick="closeCasePreview()">
+                                Отмена
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return modal;
+        }
+        
+        // Открыть кейс из превью
+        function openCaseFromPreview(caseId) {
+            const selectedCase = window.casesData.find(c => c.id === caseId);
+            const balance = window.getBalance ? window.getBalance() : 0;
+            
+            if (balance < selectedCase.cost) {
+                alert('❌ Недостаточно звезд! Нужно: ' + selectedCase.cost + ' ⭐');
+                return;
+            }
+            
+            // Закрываем превью
+            closeCasePreview();
+            
+            // Списываем звезды
+            if (window.updateBalance) {
+                window.updateBalance(-selectedCase.cost);
+            }
+            
+            // Показываем анимацию открытия
+            showCaseOpeningAnimation(selectedCase);
+        }
+        
+        // Закрыть превью
+        function closeCasePreview() {
+            const modal = document.querySelector('.case-preview-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modal.remove();
+                }, 300);
+            }
+        }
+        
+        // Показать анимацию открытия кейса
+        function showCaseOpeningAnimation(caseData) {
+            const wonPrize = getRandomPrize(caseData);
+            
+            const modal = document.createElement('div');
+            modal.className = 'case-opening-modal';
+            modal.innerHTML = `
+                <div class="modal-backdrop"></div>
+                <div class="opening-content">
+                    <div class="opening-header">
+                        <h2>Открываем ${caseData.name}...</h2>
+                    </div>
+                    
+                    <div class="case-opening-animation">
+                        <div class="opening-case ${caseData.rarity}">
+                            <div class="case-lid"></div>
+                            <div class="case-body-anim"></div>
+                            <div class="sparkles"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="opening-text">
+                        <p id="opening-status">� Открываем кейс...</p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Анимация появления
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+            
+            // Этапы анимации
+            setTimeout(() => {
+                document.getElementById('opening-status').textContent = '✨ Кейс трясется...';
+                modal.querySelector('.opening-case').classList.add('shaking');
+            }, 1000);
+            
+            setTimeout(() => {
+                document.getElementById('opening-status').textContent = '💥 Кейс открывается!';
+                modal.querySelector('.opening-case').classList.add('opening');
+            }, 2500);
+            
+            setTimeout(() => {
+                modal.remove();
+                showCaseResult(caseData, wonPrize);
+            }, 4000);
+        }
+        
+        // Получить случайный приз
+        function getRandomPrize(caseData) {
+            if (!caseData.prizes || caseData.prizes.length === 0) {
+                return { name: '50 звезд', emoji: '⭐', rarity: 'common' };
+            }
+            
+            // Система весов на основе шансов
+            const rand = Math.random() * 100;
+            let cumulativeChance = 0;
+            
+            for (const prize of caseData.prizes) {
+                cumulativeChance += parseFloat(prize.chance);
+                if (rand <= cumulativeChance) {
+                    return prize;
+                }
+            }
+            
+            // Fallback
+            return caseData.prizes[Math.floor(Math.random() * caseData.prizes.length)];
+        }
+        
+        // Показать результат открытия кейса
+        function showCaseResult(caseData, wonPrize) {
+            // Если выиграли звезды, добавляем их
+            if (wonPrize.name.includes('звезд')) {
+                const starsAmount = parseInt(wonPrize.name);
+                if (window.updateBalance) {
+                    window.updateBalance(starsAmount);
+                }
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'case-result-modal';
+            modal.innerHTML = `
+                <div class="modal-backdrop" onclick="closeCaseResult()"></div>
+                <div class="result-content">
+                    <div class="result-header">
+                        <h2 class="congratulations">🎉 Поздравляем!</h2>
+                    </div>
+                    
+                    <div class="result-prize ${wonPrize.rarity}">
+                        <div class="prize-icon">${wonPrize.emoji}</div>
+                        <h3 class="prize-name">${wonPrize.name}</h3>
+                        <div class="prize-rarity-badge">${getRarityName(wonPrize.rarity)}</div>
+                        ${wonPrize.rarity === 'mythic' ? '<div class="mythic-text">✨ МИФИЧЕСКАЯ РЕДКОСТЬ! ✨</div>' : ''}
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="open-another-btn" onclick="closeCaseResult(); showCasePreview(window.casesData.find(c => c.id === '${caseData.id}'))">
+                            🎁 Открыть ещё
+                        </button>
+                        <button class="close-result-btn" onclick="closeCaseResult()">
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Анимация появления
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+        
+        // Показать компактный результат
+        function showCompactResult(caseData, wonPrize) {
+            // Если выиграли звезды, добавляем их
+            if (wonPrize.name.includes('звезд')) {
+                const starsAmount = parseInt(wonPrize.name);
+                if (window.updateBalance) {
+                    window.updateBalance(starsAmount);
+                }
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'compact-result-modal';
+            modal.innerHTML = `
+                <div class="modal-backdrop" onclick="closeCompactResult()"></div>
+                <div class="compact-result-content">
+                    <div class="result-icon ${wonPrize.rarity}">${wonPrize.emoji}</div>
+                    <h3 class="result-name">${wonPrize.name}</h3>
+                    <div class="result-rarity">${getRarityName(wonPrize.rarity)}</div>
+                    ${wonPrize.rarity === 'mythic' ? '<div class="mythic-badge">✨ МИФИК! ✨</div>' : ''}
+                    <div class="result-actions-compact">
+                        <button class="again-btn" onclick="closeCompactResult(); openCase('${caseData.id}')">
+                            🎁 Ещё раз
+                        </button>
+                        <button class="done-btn" onclick="closeCompactResult()">
+                            Готово
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+            
+            // Автоматически закрываем через 4 секунды
+            setTimeout(() => {
+                if (document.querySelector('.compact-result-modal')) {
+                    closeCompactResult();
+                }
+            }, 4000);
+        }
+        
+        // Закрытие компактных модалов
+        function closeCompactPreview() {
+            const modal = document.querySelector('.compact-preview-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+        
+        function closeCompactResult() {
+            const modal = document.querySelector('.compact-result-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+        
+        // Закрыть результат (старый)
+        function closeCaseResult() {
+            const modal = document.querySelector('.case-result-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modal.remove();
+                }, 300);
+            }
+        }
+        
+        // Переключение на вкладку кейсов
+        window.showCasesTab = function() {
+            // Скрываем все табы
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Показываем таб кейсов
+            document.getElementById('cases').classList.add('active');
+            
+            // Обновляем навигацию
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            document.querySelector('[data-tab="cases"]').classList.add('active');
+            
+            // Перезагружаем кейсы
+            loadCasesInstant();
+        };
+        
+        // ===== INVENTORY FUNCTIONS =====
+        
+        // Загрузить инвентарь
+        async function loadInventory() {
+            try {
+                const telegramId = window.pixelstarsCasino?.user?.telegram_id || 999999999;
+                
+                const response = await fetch(`/api/inventory/${telegramId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayInventory(data.inventory);
+                    updateInventoryStats(data.inventory);
+                } else {
+                    console.error('Ошибка загрузки инвентаря:', data.error);
+                    showEmptyInventory();
+                }
+            } catch (error) {
+                console.error('Ошибка соединения при загрузке инвентаря:', error);
+                showEmptyInventory();
+            }
+        }
+        
+        // Отобразить инвентарь
+        function displayInventory(inventory) {
+            const grid = document.getElementById('inventoryGrid');
+            
+            if (!inventory || inventory.length === 0) {
+                showEmptyInventory();
+                return;
+            }
+            
+            grid.innerHTML = inventory.map(item => `
+                <div class="inventory-item ${item.rarity}">
+                    <div class="item-header">
+                        <div class="item-emoji">${item.emoji}</div>
+                        <div class="item-info">
+                            <h3>${item.name}</h3>
+                            <span class="item-rarity ${item.rarity}">${getRarityName(item.rarity)}</span>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-detail">
+                            <span class="label">Цена продажи:</span>
+                            <span class="value">${item.sell_price}⭐</span>
+                        </div>
+                        <div class="item-detail">
+                            <span class="label">Получен:</span>
+                            <span class="value">${new Date(item.obtained_at).toLocaleDateString()}</span>
+                        </div>
+                        <div class="item-detail">
+                            <span class="label">Источник:</span>
+                            <span class="value">${item.from_case}</span>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="sell-btn" onclick="sellItem('${item.id}', '${item.name}', ${item.sell_price})">
+                            💰 Продать за ${item.sell_price}⭐
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Показать пустой инвентарь
+        function showEmptyInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = `
+                <div class="inventory-empty">
+                    <div class="empty-icon">📦</div>
+                    <div class="empty-text">Ваш инвентарь пуст</div>
+                    <div class="empty-suggestion">Откройте кейсы, чтобы получить предметы!</div>
+                </div>
+            `;
+        }
+        
+        // Обновить статистику инвентаря
+        function updateInventoryStats(inventory) {
+            const totalItems = inventory?.length || 0;
+            const totalValue = inventory?.reduce((sum, item) => sum + item.sell_price, 0) || 0;
+            
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('totalValue').textContent = totalValue + '⭐';
+        }
+        
+        // Продать предмет
+        async function sellItem(itemId, itemName, sellPrice) {
+            if (!confirm(`Продать "${itemName}" за ${sellPrice}⭐?`)) {
+                return;
+            }
+            
+            try {
+                const telegramId = window.pixelstarsCasino?.user?.telegram_id || 999999999;
+                
+                const response = await fetch('/api/inventory/sell', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        telegram_id: telegramId,
+                        item_id: itemId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Обновляем баланс
+                    if (window.pixelstarsCasino) {
+                        window.pixelstarsCasino.balance = data.new_balance;
+                        window.pixelstarsCasino.updateBalance(0);
+                    }
+                    
+                    // Перезагружаем инвентарь
+                    loadInventory();
+                    
+                    // Показываем уведомление
+                    showQuickSuccess(`Продано! +${sellPrice}⭐`);
+                } else {
+                    showQuickError(data.error || 'Ошибка продажи');
+                }
+            } catch (error) {
+                console.error('Ошибка продажи:', error);
+                showQuickError('Ошибка соединения с сервером');
+            }
+        }
+        
+        // Обновить инвентарь
+        function refreshInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = `
+                <div class="inventory-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Загрузка инвентаря...</p>
+                </div>
+            `;
+            loadInventory();
+        }
+        
+        // Продать все обычные предметы
+        async function sellAllCommon() {
+            if (!confirm('Продать все обычные предметы?')) {
+                return;
+            }
+            
+            try {
+                const telegramId = window.pixelstarsCasino?.user?.telegram_id || 999999999;
+                
+                const inventoryResponse = await fetch(`/api/inventory/${telegramId}`);
+                const inventoryData = await inventoryResponse.json();
+                
+                if (!inventoryResponse.ok || !inventoryData.inventory) {
+                    showQuickError('Ошибка загрузки инвентаря');
+                    return;
+                }
+                
+                const commonItems = inventoryData.inventory.filter(item => item.rarity === 'common');
+                
+                if (commonItems.length === 0) {
+                    showQuickError('Нет обычных предметов для продажи');
+                    return;
+                }
+                
+                let totalEarned = 0;
+                let soldCount = 0;
+                
+                for (const item of commonItems) {
+                    const response = await fetch('/api/inventory/sell', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            telegram_id: telegramId,
+                            item_id: item.id
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        totalEarned += data.sell_price;
+                        soldCount++;
+                    }
+                }
+                
+                if (soldCount > 0) {
+                    // Обновляем баланс
+                    if (window.pixelstarsCasino) {
+                        const userResponse = await fetch(`/api/user/${telegramId}`);
+                        if (userResponse.ok) {
+                            const userData = await userResponse.json();
+                            window.pixelstarsCasino.balance = userData.stars_balance;
+                            window.pixelstarsCasino.updateBalance(0);
+                        }
+                    }
+                    
+                    // Перезагружаем инвентарь
+                    loadInventory();
+                    
+                    showQuickSuccess(`Продано ${soldCount} предметов за ${totalEarned}⭐!`);
+                } else {
+                    showQuickError('Не удалось продать предметы');
+                }
+            } catch (error) {
+                console.error('Ошибка массовой продажи:', error);
+                showQuickError('Ошибка соединения с сервером');
+            }
+        }
+        
+        // Уведомление об успехе
+        function showQuickSuccess(message) {
+            const notification = document.createElement('div');
+            notification.className = 'success-notification';
+            notification.innerHTML = `
+                <div class="success-content">
+                    <div class="success-icon">✅</div>
+                    <div class="success-text">${message}</div>
+                </div>
+            `;
+            
+            // Добавляем стили если их нет
+            if (!document.querySelector('.success-notification-styles')) {
+                const styles = document.createElement('style');
+                styles.className = 'success-notification-styles';
+                styles.textContent = `
+                    .success-notification {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(45deg, #4CAF50, #45a049);
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                        z-index: 10000;
+                        transform: translateX(400px);
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .success-notification.show {
+                        transform: translateX(0);
+                    }
+                    
+                    .success-content {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    
+                    .success-icon {
+                        font-size: 1.2em;
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Делаем функцию loadInventory доступной глобально
+        window.loadInventory = loadInventory;
+        
+        // Простая функция showPage для навигации (fallback)
+        if (!window.showPage) {
+            window.showPage = function(page) {
+                // Скрываем все вкладки
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Удаляем активный класс со всех навигационных элементов
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Показываем выбранную вкладку
+                const targetTab = document.getElementById(page);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+                
+                // Добавляем активный класс к соответствующему навигационному элементу
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach((item, index) => {
+                    const pages = ['home', 'cases', 'rocket', 'profile'];
+                    if (pages[index] === page) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Загружаем данные для профиля (включая инвентарь)
+                if (page === 'profile') {
+                    setTimeout(() => loadInventory(), 100);
+                }
+                
+                console.log('Переключено на вкладку:', page);
+            };
+        }
+        
+        // Функция для начисления бонусных звезд
+        function addBonusStars(amount = 1000) {
+            const currentBalance = parseInt(localStorage.getItem('stars') || '0');
+            const newBalance = currentBalance + amount;
+            localStorage.setItem('stars', newBalance.toString());
+            
+            // Обновляем отображение баланса
+            const balanceEl = document.querySelector('.balance-amount');
+            if (balanceEl) {
+                balanceEl.textContent = newBalance;
+            }
+            
+            // Показываем уведомление
+            showQuickSuccess(`Получено ${amount} звезд! Новый баланс: ${newBalance} ⭐`);
+            console.log(`💰 Добавлено ${amount} звезд. Новый баланс: ${newBalance}`);
+            
+            return newBalance;
+        }
+        
+        // Автоматически начисляем 1000 звезд при первом запуске
+        function initializeBalance() {
+            const hasInitialStars = localStorage.getItem('initialStarsGiven');
+            if (!hasInitialStars) {
+                localStorage.setItem('stars', '1000');
+                localStorage.setItem('initialStarsGiven', 'true');
+                console.log('🎁 Начальные 1000 звезд начислены!');
+            }
+            
+            // Обновляем отображение баланса
+            const currentBalance = localStorage.getItem('stars') || '1000';
+            const balanceEl = document.querySelector('.balance-amount');
+            if (balanceEl) {
+                balanceEl.textContent = currentBalance;
+            }
+        }
+        
+        // Добавляем в глобальную область для доступа из консоли
+        window.addBonusStars = addBonusStars;
+        
+        // Секретная комбинация для получения звезд
+        let secretCode = '';
+        document.addEventListener('keydown', function(e) {
+            secretCode += e.key.toLowerCase();
+            
+            // Проверяем секретный код "stars" или "звезды"
+            if (secretCode.includes('stars')) {
+                addBonusStars(1000);
+                secretCode = '';
+            } else if (secretCode.includes('bonus')) {
+                addBonusStars(5000);
+                secretCode = '';
+            }
+            
+            // Ограничиваем длину кода
+            if (secretCode.length > 10) {
+                secretCode = secretCode.slice(-5);
+            }
+        });
+        
+        // Функции для работы с ботом
+        async function testBotConnection() {
+            const statusEl = document.getElementById('botStatus');
+            if (statusEl) {
+                statusEl.innerHTML = '🔄 Проверка соединения с ботом...';
+                statusEl.style.background = 'rgba(245, 158, 11, 0.2)';
+            }
+            
+            try {
+                if (window.pixelstarsCasino && window.pixelstarsCasino.getBotInfo) {
+                    const botInfo = await window.pixelstarsCasino.getBotInfo();
+                    
+                    if (botInfo && botInfo.ok) {
+                        if (statusEl) {
+                            statusEl.innerHTML = `✅ Бот подключен: @${botInfo.result.username}`;
+                            statusEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                        }
+                        console.log('🤖 Бот успешно подключен:', botInfo.result);
+                    } else {
+                        throw new Error('Неверный ответ от бота');
+                    }
+                } else {
+                    throw new Error('Приложение не готово');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка подключения к боту:', error);
+                if (statusEl) {
+                    statusEl.innerHTML = '❌ Ошибка подключения к боту';
+                    statusEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                }
+            }
+        }
+        
+        async function syncWithBot() {
+            const statusEl = document.getElementById('botStatus');
+            if (statusEl) {
+                statusEl.innerHTML = '🔄 Синхронизация с ботом...';
+                statusEl.style.background = 'rgba(245, 158, 11, 0.2)';
+            }
+            
+            try {
+                if (window.pixelstarsCasino && window.pixelstarsCasino.syncWithBot) {
+                    await window.pixelstarsCasino.syncWithBot();
+                    
+                    if (statusEl) {
+                        statusEl.innerHTML = '✅ Данные синхронизированы с ботом';
+                        statusEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                    }
+                    console.log('🔄 Синхронизация с ботом завершена');
+                } else {
+                    throw new Error('Приложение не готово');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка синхронизации с ботом:', error);
+                if (statusEl) {
+                    statusEl.innerHTML = '❌ Ошибка синхронизации с ботом';
+                    statusEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                }
+            }
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен, инициализация навигации');
+            
+            // Инициализируем баланс
+            initializeBalance();
+            
+            // Активируем главную вкладку по умолчанию
+            setTimeout(() => {
+                if (window.showPage) {
+                    window.showPage('home');
+                }
+            }, 100);
+        });
+    </script>
 </body>
-</html>
 </html>

@@ -1,3 +1,9 @@
+// Bot configuration
+const BOT_CONFIG = {
+    token: '8475765506:AAFENFMSv1Zp9QYMgVnmFonk8I2RJTDQErE',
+    apiUrl: 'https://api.telegram.org/bot8475765506:AAFENFMSv1Zp9QYMgVnmFonk8I2RJTDQErE'
+};
+
 // Main app initialization
 class PixelstarsCasino {
     constructor() {
@@ -5,6 +11,10 @@ class PixelstarsCasino {
         this.balance = 0;
         this.currentTab = 'home';
         this.telegramUser = null;
+        this.botConfig = BOT_CONFIG;
+        
+        // Делаем объект доступным глобально
+        window.pixelstarsCasino = this;
         
         this.init();
     }
@@ -12,7 +22,7 @@ class PixelstarsCasino {
     async init() {
         try {
             // Initialize Telegram Web App
-            this.initTelegram();
+            await this.initTelegram();
             
             // Show loading screen
             await this.showLoading();
@@ -37,7 +47,7 @@ class PixelstarsCasino {
         }
     }
 
-    initTelegram() {
+    async initTelegram() {
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
             this.telegramUser = tg.initDataUnsafe?.user;
@@ -50,6 +60,68 @@ class PixelstarsCasino {
             document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#17212b');
             document.documentElement.style.setProperty('--tg-text', tg.themeParams.text_color || '#ffffff');
             document.documentElement.style.setProperty('--tg-button', tg.themeParams.button_color || '#5288c1');
+            
+            // Показываем информацию о пользователе
+            if (this.telegramUser) {
+                console.log('🎉 Telegram пользователь найден:', this.telegramUser);
+                this.showWelcomeMessage();
+            } else {
+                console.log('⚠️ Нет данных Telegram пользователя');
+            }
+        } else {
+            console.log('⚠️ Telegram WebApp не обнаружен, используем демо режим');
+            // Создаем демо пользователя для тестирования
+            await this.createDemoUser();
+        }
+    }
+
+    // Отправка сообщения через Bot API
+    async sendBotMessage(chatId, text, options = {}) {
+        try {
+            const response = await fetch(`${this.botConfig.apiUrl}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text,
+                    parse_mode: 'HTML',
+                    ...options
+                })
+            });
+            
+            const result = await response.json();
+            console.log('📤 Сообщение отправлено:', result);
+            return result;
+        } catch (error) {
+            console.error('❌ Ошибка отправки сообщения:', error);
+            return null;
+        }
+    }
+
+    // Получение информации о боте
+    async getBotInfo() {
+        try {
+            const response = await fetch(`${this.botConfig.apiUrl}/getMe`);
+            const result = await response.json();
+            console.log('🤖 Информация о боте:', result);
+            return result;
+        } catch (error) {
+            console.error('❌ Ошибка получения информации о боте:', error);
+            return null;
+        }
+    }
+
+    // Синхронизация данных с ботом
+    async syncWithBot() {
+        if (this.telegramUser) {
+            const message = `🎮 <b>Pixelstars Casino</b>\n\n` +
+                           `👤 Пользователь: ${this.telegramUser.first_name}\n` +
+                           `⭐ Баланс: ${this.balance} звезд\n` +
+                           `🎯 Статус: Активен в веб-приложении`;
+                           
+            await this.sendBotMessage(this.telegramUser.id, message);
         }
     }
 
@@ -69,57 +141,150 @@ class PixelstarsCasino {
 
     async loadUserData() {
         try {
-            // Баланс всегда ноль
-            this.balance = 0;
-            console.log('💰 Баланс установлен на 0');
-
             if (this.telegramUser) {
+                console.log('� Загружаем/создаем пользователя Telegram:', this.telegramUser.first_name);
+                
                 try {
+                    // Пытаемся получить существующего пользователя
                     const response = await fetch(`/api/user/${this.telegramUser.id}`);
+                    
                     if (response.ok) {
                         this.user = await response.json();
-                        // Игнорируем баланс с сервера - всегда ноль
-                        console.log('💰 Данные пользователя загружены, баланс остается 0');
+                        console.log('✅ Пользователь найден в базе:', this.user.first_name);
+                        
+                        // Устанавливаем баланс из базы (или 0)
+                        this.balance = this.user.stars_balance || 0;
+                        
+                    } else if (response.status === 404) {
+                        // Пользователь не найден, создаем нового
+                        console.log('🆕 Создаем нового пользователя...');
+                        await this.registerNewUser();
+                        
                     } else {
-                        console.log('💰 API пользователя недоступен, баланс остается 0');
+                        console.log('⚠️ Ошибка API:', response.status);
+                        this.createFallbackUser();
                     }
                 } catch (apiError) {
-                    console.log('💰 Ошибка API пользователя:', apiError.message);
+                    console.log('⚠️ Ошибка соединения с API:', apiError.message);
+                    this.createFallbackUser();
                 }
-                
-                // Create user object for display
-                this.user = {
-                    telegram_id: this.telegramUser.id,
-                    first_name: this.telegramUser.first_name,
-                    stars_balance: this.balance,
-                    level: 1,
-                    experience: 0,
-                    total_won: 0,
-                    total_spent: 0,
-                    games_played: 0,
-                    cases_opened: 0
-                };
             } else {
                 // Режим разработки без Telegram
-                this.user = {
-                    telegram_id: 123456,
-                    first_name: 'Test User',
-                    stars_balance: this.balance,
-                    level: 1,
-                    experience: 0,
-                    total_won: 0,
-                    total_spent: 0,
-                    games_played: 0,
-                    cases_opened: 0
-                };
+                console.log('🔧 Демо режим без Telegram');
+                await this.createDemoUser();
             }
             
             console.log('💰 Финальный баланс:', this.balance);
         } catch (error) {
-            console.error('Error loading user data:', error);
-            // Fallback значения - всегда ноль
-            this.balance = 0;
+            console.error('❌ Ошибка загрузки пользователя:', error);
+            this.createFallbackUser();
         }
+    }
+
+    // Регистрация нового пользователя
+    async registerNewUser() {
+        try {
+            const userData = {
+                telegram_id: this.telegramUser.id,
+                first_name: this.telegramUser.first_name || 'Игрок',
+                last_name: this.telegramUser.last_name || '',
+                username: this.telegramUser.username || '',
+                language_code: this.telegramUser.language_code || 'ru',
+                is_premium: this.telegramUser.is_premium || false
+            };
+
+            const response = await fetch('/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                this.user = await response.json();
+                this.balance = this.user.stars_balance || 100; // Стартовый бонус
+                
+                console.log('🎉 Новый пользователь зарегистрирован!');
+                this.showRegistrationWelcome();
+            } else {
+                console.log('❌ Ошибка регистрации');
+                this.createFallbackUser();
+            }
+        } catch (error) {
+            console.error('❌ Ошибка регистрации:', error);
+            this.createFallbackUser();
+        }
+    }
+
+    // Создать демо пользователя
+    async createDemoUser() {
+        this.telegramUser = {
+            id: 999999999,
+            first_name: 'Demo User',
+            username: 'demo_user'
+        };
+        
+        try {
+            // Регистрируем демо пользователя на сервере
+            const response = await fetch('/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    telegram_id: 999999999,
+                    first_name: 'Demo User',
+                    last_name: '',
+                    username: 'demo_user',
+                    language_code: 'ru',
+                    is_premium: false
+                })
+            });
+            
+            if (response.ok) {
+                this.user = await response.json();
+                this.balance = this.user.stars_balance;
+                console.log('🎮 Демо пользователь зарегистрирован с балансом', this.balance, 'звезд');
+                return;
+            }
+        } catch (error) {
+            console.error('Ошибка регистрации демо пользователя:', error);
+        }
+        
+        // Fallback к локальному демо пользователю
+        this.user = {
+            telegram_id: 999999999,
+            first_name: 'Demo User',
+            stars_balance: 500, // Демо баланс
+            level: 1,
+            experience: 0,
+            total_won: 0,
+            total_spent: 0,
+            games_played: 0,
+            cases_opened: 0,
+            registration_date: new Date().toISOString()
+        };
+        
+        this.balance = 500;
+        console.log('🎮 Локальный демо пользователь создан с балансом 500 звезд');
+    }
+
+    // Создать резервного пользователя
+    createFallbackUser() {
+        this.user = {
+            telegram_id: this.telegramUser?.id || 123456,
+            first_name: this.telegramUser?.first_name || 'Игрок',
+            stars_balance: 0,
+            level: 1,
+            experience: 0,
+            total_won: 0,
+            total_spent: 0,
+            games_played: 0,
+            cases_opened: 0
+        };
+        
+        this.balance = 0;
     }
 
     // Баланс не сохраняется - всегда ноль
@@ -225,25 +390,43 @@ class PixelstarsCasino {
         
         // Load tab-specific content
         if (tabName === 'cases') {
-            this.loadCases();
+            // Убеждаемся что CasesManager инициализирован
+            if (window.casesManager) {
+                window.casesManager.loadCases();
+            } else {
+                this.initCasesManager();
+            }
         } else if (tabName === 'rocket') {
             this.initRocketGame();
         } else if (tabName === 'profile') {
-            // Обновляем инвентарь при переключении на профиль
-            if (window.casesManager) {
-                window.casesManager.updateInventoryDisplay();
+            // Загружаем инвентарь при переключении на профиль
+            if (window.loadInventory) {
+                window.loadInventory();
             }
         }
     }
 
     async loadContent() {
-        await this.loadCases();
+        this.initCasesManager();
         this.updateStats();
     }
 
-    async loadCases() {
-        // Кейсы теперь загружаются через CasesManager
-        // Эта функция может быть пустой или удалена
+    initCasesManager() {
+        // Инициализируем менеджер кейсов
+        if (typeof CasesManager !== 'undefined') {
+            window.casesManager = new CasesManager();
+            console.log('🎁 CasesManager инициализирован');
+        } else {
+            console.warn('⚠️ CasesManager не найден, загружаем через 1 секунду');
+            setTimeout(() => {
+                if (typeof CasesManager !== 'undefined') {
+                    window.casesManager = new CasesManager();
+                    console.log('🎁 CasesManager инициализирован (отложенно)');
+                } else {
+                    console.error('❌ CasesManager не загружен!');
+                }
+            }, 1000);
+        }
     }
 
     // Cases are now handled by CasesManager
@@ -303,6 +486,13 @@ class PixelstarsCasino {
                     <button id="withdrawButton" onclick="app.withdrawNow()" class="withdraw-btn">
                         💸 ЗАБРАТЬ СЕЙЧАС!
                     </button>
+                </div>
+                
+                <div class="crash-history" id="crashHistory">
+                    <div class="crash-history-title">📈 История крашей:</div>
+                    <div class="crash-history-items" id="crashHistoryItems">
+                        <span class="crash-item loading">--</span>
+                    </div>
                 </div>
                 
                 <div class="game-info">
@@ -648,6 +838,61 @@ class PixelstarsCasino {
                 color: var(--tg-text-primary);
                 font-weight: 600;
             }
+            
+            .crash-history {
+                background: rgba(255,255,255,0.05);
+                border-radius: 10px;
+                padding: 15px;
+                margin-top: 15px;
+                text-align: center;
+            }
+            
+            .crash-history-title {
+                color: var(--tg-text-secondary);
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 10px;
+            }
+            
+            .crash-history-items {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            
+            .crash-item {
+                background: rgba(255,255,255,0.1);
+                color: var(--tg-text-primary);
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 600;
+                border: 1px solid rgba(255,255,255,0.2);
+            }
+            
+            .crash-item.loading {
+                background: rgba(255,255,255,0.05);
+                color: var(--tg-text-muted);
+            }
+            
+            .crash-item.low {
+                background: rgba(239, 68, 68, 0.2);
+                border-color: rgba(239, 68, 68, 0.5);
+                color: #ff6b6b;
+            }
+            
+            .crash-item.medium {
+                background: rgba(245, 158, 11, 0.2);
+                border-color: rgba(245, 158, 11, 0.5);
+                color: #fbbf24;
+            }
+            
+            .crash-item.high {
+                background: rgba(16, 185, 129, 0.2);
+                border-color: rgba(16, 185, 129, 0.5);
+                color: #34d399;
+            }
         `;
         document.head.appendChild(style);
     }
@@ -717,6 +962,26 @@ class PixelstarsCasino {
         }
         
         try {
+            // Отправляем ставку на сервер
+            const userId = this.user?.telegram_id || 'demo_user';
+            const betResponse = await fetch('/api/rocket/bet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    amount: betAmount,
+                    autoWithdraw: autoWithdrawValue
+                })
+            });
+            
+            const betResult = await betResponse.json();
+            
+            if (!betResult.success) {
+                throw new Error(betResult.error);
+            }
+            
             // Мгновенно снимаем деньги с правильного баланса и обновляем UI
             if (this.demoMode) {
                 this.demoBalance -= betAmount;
@@ -938,6 +1203,9 @@ class PixelstarsCasino {
             // Обновляем счетчик игроков
             playersCount.textContent = `👥 Игроков в раунде: ${gameData.playersCount || 0}`;
             
+            // Обновляем историю крашей
+            this.updateCrashHistory(gameData.crashHistory || []);
+            
             // Обновляем баланс
             const balanceElement = document.getElementById('currentBalance');
             if (balanceElement) {
@@ -970,6 +1238,34 @@ class PixelstarsCasino {
                 this.updateRocketDisplay();
             }, 3000);
         }
+    }
+
+    updateCrashHistory(crashHistory) {
+        const historyContainer = document.getElementById('crashHistoryItems');
+        if (!historyContainer || !crashHistory) return;
+        
+        if (crashHistory.length === 0) {
+            historyContainer.innerHTML = '<span class="crash-item loading">История загружается...</span>';
+            return;
+        }
+        
+        // Создаем элементы для каждого краша с цветовой индикацией
+        const historyHTML = crashHistory.map(crash => {
+            const multiplier = crash.toFixed(2);
+            let cssClass = 'crash-item ';
+            
+            if (crash < 2.0) {
+                cssClass += 'low'; // Красный для низких крашей
+            } else if (crash < 5.0) {
+                cssClass += 'medium'; // Жёлтый для средних 
+            } else {
+                cssClass += 'high'; // Зелёный для высоких
+            }
+            
+            return `<span class="${cssClass}">x${multiplier}</span>`;
+        }).join('');
+        
+        historyContainer.innerHTML = historyHTML;
     }
 
     // Очистка интервала при переключении табов
@@ -1034,16 +1330,105 @@ class PixelstarsCasino {
         }, 3000);
     }
 
+    // Показать приветствие для существующего пользователя
+    showWelcomeMessage() {
+        setTimeout(() => {
+            this.showNotification(`👋 С возвращением, ${this.telegramUser.first_name}!`, 'success');
+        }, 1000);
+    }
+
+    // Показать приветствие для нового пользователя
+    showRegistrationWelcome() {
+        setTimeout(() => {
+            const modal = document.createElement('div');
+            modal.className = 'welcome-modal';
+            modal.innerHTML = `
+                <div class="welcome-backdrop"></div>
+                <div class="welcome-content">
+                    <div class="welcome-header">
+                        <div class="welcome-icon">🎉</div>
+                        <h2>Добро пожаловать в Pixelstars!</h2>
+                        <p>Привет, ${this.telegramUser.first_name}!</p>
+                    </div>
+                    <div class="welcome-body">
+                        <div class="welcome-gift">
+                            <div class="gift-icon">🎁</div>
+                            <div class="gift-text">
+                                <h3>Стартовый бонус!</h3>
+                                <p>+${this.balance} звезд на твой счет</p>
+                            </div>
+                        </div>
+                        <div class="welcome-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">🎰</span>
+                                <span class="feature-text">Играй в ракетку</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🎁</span>
+                                <span class="feature-text">Открывай кейсы</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">⭐</span>
+                                <span class="feature-text">Собирай звезды</span>
+                            </div>
+                        </div>
+                        <button class="welcome-btn" onclick="closeWelcomeModal()">
+                            🚀 Начать игру!
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 100);
+            
+            // Глобальная функция закрытия
+            window.closeWelcomeModal = () => {
+                modal.classList.remove('active');
+                setTimeout(() => modal.remove(), 300);
+            };
+        }, 500);
+    }
+
     updateBalanceDisplay() {
         const balanceElement = document.getElementById('balanceAmount');
         if (balanceElement) {
             balanceElement.textContent = this.balance.toLocaleString();
         }
     }
+
+    // Обновить баланс на сервере
+    async updateBalanceOnServer(amount) {
+        if (!this.user?.telegram_id) return;
+        
+        try {
+            const response = await fetch('/api/user/balance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    telegram_id: this.user.telegram_id,
+                    amount: amount,
+                    new_balance: this.balance
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('✅ Баланс синхронизирован с сервером:', result.balance);
+            } else {
+                console.log('⚠️ Не удалось синхронизировать баланс с сервером');
+            }
+        } catch (error) {
+            console.log('⚠️ Ошибка синхронизации баланса:', error.message);
+        }
+    }
 }
 
 // Global functions for HTML onclick handlers
 window.switchTab = (tab) => window.app.switchTab(tab);
+window.showPage = (page) => window.app.switchTab(page);
 window.showDailyBonus = () => window.app.showNotification('🎊 Ежедневный бонус: +100 звезд!', 'success');
 window.showLeaderboard = () => window.app.switchTab('profile');
 
@@ -1052,14 +1437,47 @@ window.getBalance = () => {
     return window.app ? window.app.balance : 0;
 };
 
-window.updateBalance = (amount) => {
-    if (window.app) {
-        // Баланс всегда остается 0, независимо от amount
-        window.app.balance = 0;
-        window.app.updateBalanceDisplay();
+window.updateBalance = async (amount) => {
+    if (window.app && window.app.user) {
+        const oldBalance = window.app.balance;
+        const newBalance = oldBalance + amount;
         
-        console.log('💰 Попытка изменить баланс на', amount, 'но баланс остается 0');
+        // Не позволяем балансу уйти в минус
+        if (newBalance < 0) {
+            console.log('❌ Недостаточно средств для операции');
+            return false;
+        }
+        
+        try {
+            // Обновляем локально сразу для быстрого отклика
+            window.app.balance = newBalance;
+            window.app.user.stars_balance = newBalance;
+            window.app.updateBalanceDisplay();
+            
+            // Отправляем на сервер
+            await window.app.updateBalanceOnServer(amount);
+            
+            console.log(`💰 Баланс изменен: ${oldBalance} → ${newBalance} (${amount >= 0 ? '+' : ''}${amount})`);
+            
+            // Показываем уведомление при значительных изменениях
+            if (Math.abs(amount) >= 50) {
+                const message = amount > 0 ? 
+                    `💰 +${amount} звезд получено!` : 
+                    `💸 -${Math.abs(amount)} звезд потрачено`;
+                window.app.showNotification(message, amount > 0 ? 'success' : 'info');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('❌ Ошибка обновления баланса:', error);
+            // Откатываем изменения при ошибке
+            window.app.balance = oldBalance;
+            window.app.user.stars_balance = oldBalance;
+            window.app.updateBalanceDisplay();
+            return false;
+        }
     }
+    return false;
 };
 
 // Top-up functions
@@ -1118,6 +1536,14 @@ window.selectTopUpPackage = (stars, price) => {
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new PixelstarsCasino();
+    
+    // Также инициализируем CasesManager если скрипт загружен
+    setTimeout(() => {
+        if (typeof CasesManager !== 'undefined' && !window.casesManager) {
+            window.casesManager = new CasesManager();
+            console.log('🎁 CasesManager инициализирован при загрузке DOM');
+        }
+    }, 500);
 });
 
 export default PixelstarsCasino;

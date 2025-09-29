@@ -86,21 +86,19 @@ const createOrUpdateUser = (telegramUser) => {
     try {
         const stmt = db.prepare(`
             INSERT INTO users (telegram_id, username, first_name, last_name, stars_balance)
-            VALUES (?, ?, ?, ?, 0)
+            VALUES (?, ?, ?, ?, 1000)
             ON CONFLICT(telegram_id) DO UPDATE SET
                 username = excluded.username,
                 first_name = excluded.first_name,
                 last_name = excluded.last_name,
                 updated_at = CURRENT_TIMESTAMP
         `);
-        
         stmt.run(
             telegramUser.id,
             telegramUser.username || null,
             telegramUser.first_name || null,
             telegramUser.last_name || null
         );
-        
         return getUserFromDB(telegramUser.id);
     } catch (error) {
         console.error('Database error:', error);
